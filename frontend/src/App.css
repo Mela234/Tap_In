@@ -1,42 +1,149 @@
+/* App.css */
+@import url("https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap");
+
+html,
+body,
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.App {
+  background-color: #012b2b;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 2rem;
+  background-color: #011d1d;
+  color: white;
+  min-height: 8vh; /* header takes 20% of viewport height */
+}
+
+.header-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Patrick Hand", cursive;
+  font-size: 6vw; /* relative to viewport width */
+  letter-spacing: 0.2em;
+  text-shadow: 3px 3px 10px rgba(177, 76, 3, 0.5);
+  background: linear-gradient(45deg, #f8f3f6, #f3ecf0, #e5e3e6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  gap: 2rem;
+  font-size: 1.3rem;
+  font-family: "Patrick Hand", sans-serif;
+  font-weight: bold;
+}
+
+.header-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.header-nav a:hover {
+  color: #f3ecf0;
+}
+
+.App-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 15vh;
+  padding: 0 1rem;
+}
+
+.firstLine,
+.secondLine {
+  display: block;
+  font-family: "Patrick Hand", cursive;
+  text-transform: uppercase;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffe6f1;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.secondLine {
+  background-color: rgb(241, 132, 93);
+}
+
+.description {
+  font-size: 1.2rem;
+  max-width: 800px;
   text-align: center;
+  margin: 1rem auto;
+  font-family: "Arial", sans-serif;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* responsive adjustments */
+@media (max-width: 900px) {
+  .header-title {
+    font-size: 10vw; /* smaller screens: scale title */
   }
-  to {
-    transform: rotate(360deg);
+  .App-body {
+    margin-top: 30vh;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (max-width: 900px) {
+  .App-header {
+    flex-direction: column;
+    padding-bottom: 2.5rem;
+  }
+
+  .header-title {
+    position: static; /* re-enters normal flow */
+    transform: none;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .header-nav {
+    justify-content: center;
+    gap: 1.25rem;
   }
 }
 
-.card {
-  padding: 2em;
+.link-btn {
+  background: none;
+  border: none;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
 }
 
-.read-the-docs {
-  color: #888;
+.link-btn.teal {
+  background: none;
+  border: none;
+  color: #008080;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
 }

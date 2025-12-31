@@ -1,0 +1,61 @@
+/* Carousel decoration */
+.highlights-window {
+  margin: 3rem auto;
+  max-width: 700px;
+  width: 80%;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+
+  border: 2px solid rgba(255, 170, 100, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 18px rgba(255, 160, 90, 0.45),
+    inset 0 0 0 rgba(255, 160, 90, 0.25);
+}
+
+.highlights-header {
+  text-align: center;
+  margin-bottom: 0.5rem; /* tighter */
+  margin-top: -0.6rem; /* 👈 move upward */
+}
+
+.highlights-header h2 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.highlights-viewport {
+  width: 100%;
+  height: 180px; /* 👈 window height */
+  overflow: hidden;
+  position: relative;
+}
+
+.highlights-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+}
+
+.highlights-card {
+  min-width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* horizontal centering */
+  justify-content: center; /* vertical centering */
+
+  text-align: center;
+  padding: 1.2rem;
+}
+
+/* platform pills (reuse from before) */
+.platform {
+  align-self: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  margin-bottom: 0.4rem;
+}
