@@ -22,7 +22,7 @@ const highlights = [
   },
 ];
 
-function HighlightsCarousel() {
+function HighlightCarousel() {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -58,4 +58,4 @@ function HighlightsCarousel() {
   );
 }
 
-export default HighlightsCarousel;
+export default HighlightCarousel;
