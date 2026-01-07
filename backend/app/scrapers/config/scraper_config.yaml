@@ -1,0 +1,222 @@
+scrapers:
+  # ========================================
+  # SLANG & LANGUAGE
+  # ========================================
+
+  - name: "Urban Dictionary"
+    url: "https://www.urbandictionary.com/"
+    type: "simple_html"
+    enabled: true
+    priority: 1
+    max_items: 20
+    selectors:
+      container: "div.definition"
+      title: "a.word"
+      content: "div.meaning"
+      url: "a.word"
+      metadata:
+        example: "div.example"
+        upvotes: "a[data-vote='up']"
+    fields:
+      source: "urban_dictionary"
+      data_type: "slang"
+    base_url: "https://www.urbandictionary.com"
+  # ========================================
+  # MEMES & INTERNET CULTURE
+  # ========================================
+
+  - name: "Know Your Meme - Trending"
+    url: "https://knowyourmeme.com/memes"
+    type: "simple_html"
+    enabled: false #I will fix this one later, there is an issue with the selectors Melat
+    priority: 1
+    max_items: 15
+    selectors:
+      container: "tr"
+      title: "td a"
+      url: "td a"
+    fields:
+      source: "knowyourmeme"
+      data_type: "meme"
+    base_url: "https://knowyourmeme.com"
+
+  # ========================================
+  # REDDIT - GEN Z COMMUNITIES
+  # ========================================
+
+  - name: "Reddit r/GenZ"
+    url: "https://old.reddit.com/r/GenZ/"
+    type: "reddit_style"
+    enabled: true
+    priority: 1
+    max_items: 25
+    skip_stickied: true
+    selectors:
+      container: "div.thing"
+      title: "a.title"
+      url: "a.title"
+      metadata:
+        score: "div.score.unvoted"
+        comments: "a.comments"
+    fields:
+      source: "reddit"
+      data_type: "post"
+      subreddit: "GenZ"
+    base_url: "https://old.reddit.com"
+
+  - name: "Reddit r/teenagers"
+    url: "https://old.reddit.com/r/teenagers/"
+    type: "reddit_style"
+    enabled: true
+    priority: 2
+    max_items: 25
+    skip_stickied: true
+    selectors:
+      container: "div.thing"
+      title: "a.title"
+      url: "a.title"
+      metadata:
+        score: "div.score.unvoted"
+        comments: "a.comments"
+    fields:
+      source: "reddit"
+      data_type: "post"
+      subreddit: "teenagers"
+    base_url: "https://old.reddit.com"
+
+  - name: "Reddit r/TikTokCringe"
+    url: "https://old.reddit.com/r/TikTokCringe/"
+    type: "reddit_style"
+    enabled: true
+    priority: 2
+    max_items: 20
+    skip_stickied: true
+    selectors:
+      container: "div.thing"
+      title: "a.title"
+      url: "a.title"
+      metadata:
+        score: "div.score.unvoted"
+        comments: "a.comments"
+    fields:
+      source: "reddit"
+      data_type: "post"
+      subreddit: "TikTokCringe"
+    base_url: "https://old.reddit.com"
+
+  - name: "Reddit r/OutOfTheLoop"
+    url: "https://old.reddit.com/r/OutOfTheLoop/"
+    type: "reddit_style"
+    enabled: true
+    priority: 1
+    max_items: 20
+    skip_stickied: true
+    selectors:
+      container: "div.thing"
+      title: "a.title"
+      url: "a.title"
+      metadata:
+        score: "div.score.unvoted"
+        comments: "a.comments"
+    fields:
+      source: "reddit"
+      data_type: "post"
+      subreddit: "OutOfTheLoop"
+    base_url: "https://old.reddit.com"
+
+  # ========================================
+  # NEWS & CULTURE
+  # ========================================
+
+  - name: "BuzzFeed Trending"
+    url: "https://www.buzzfeed.com/trending"
+    type: "news_site"
+    enabled: true
+    priority: 2
+    max_items: 15
+    selectors:
+      container: "article"
+      title: "h2"
+      description: "p"
+      url: "a"
+    fields:
+      source: "buzzfeed"
+      data_type: "article"
+    base_url: "https://www.buzzfeed.com"
+
+  - name: "Complex"
+    url: "https://www.complex.com/"
+    type: "news_site"
+    enabled: true
+    priority: 3
+    max_items: 15
+    selectors:
+      container: "article"
+      title: "h2, h3"
+      url: "a"
+    fields:
+      source: "complex"
+      data_type: "article"
+    base_url: "https://www.complex.com"
+
+  - name: "Vice"
+    url: "https://www.vice.com/en"
+    type: "news_site"
+    enabled: false # this one might need JavaScript
+    priority: 3
+    max_items: 10
+    selectors:
+      container: "article"
+      title: "h2, h3"
+      url: "a"
+    fields:
+      source: "vice"
+      data_type: "article"
+    base_url: "https://www.vice.com"
+
+  - name: "The Cut"
+    url: "https://www.thecut.com/"
+    type: "news_site"
+    enabled: true
+    priority: 3
+    max_items: 10
+    selectors:
+      container: "article"
+      title: "h2, h3"
+      url: "a"
+    fields:
+      source: "thecut"
+      data_type: "article"
+    base_url: "https://www.thecut.com"
+
+  # ========================================
+  # FASHION & STYLE
+  # ========================================
+
+  - name: "Refinery29 Fashion"
+    url: "https://www.refinery29.com/en-us/fashion"
+    type: "news_site"
+    enabled: true
+    priority: 3
+    max_items: 10
+    selectors:
+      container: "article"
+      title: "h2, h3"
+      url: "a"
+    fields:
+      source: "refinery29"
+      data_type: "article"
+    base_url: "https://www.refinery29.com"
+
+  # ========================================
+  # MORE SITES (Add 30 more following the same pattern)
+  # ========================================
+
+  # We can add:
+  # - Elite Daily
+  # - The Tab
+  # - Her Campus
+  # - Genius (music)
+  # - Slang.net
+  # - More Reddit communities
+  # - etc.
