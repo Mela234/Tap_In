@@ -26,18 +26,17 @@ body,
   padding: 2rem;
   background-color: #011d1d;
   color: white;
-  min-height: 8vh; /* header takes 20% of viewport height */
+  min-height: 6.5vh;
 }
 
 .header-title {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 60%;
   transform: translate(-50%, -50%);
   font-family: "Patrick Hand", cursive;
-  font-size: 6vw; /* relative to viewport width */
+  font-size: 7vw;
   letter-spacing: 0.2em;
-  text-shadow: 3px 3px 10px rgba(177, 76, 3, 0.5);
   background: linear-gradient(45deg, #f8f3f6, #f3ecf0, #e5e3e6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -58,6 +57,7 @@ body,
   text-decoration: none;
   font-weight: bold;
   transition: color 0.2s;
+  font-weight: bold;
 }
 
 .header-nav a:hover {
@@ -80,7 +80,7 @@ body,
   text-transform: uppercase;
   font-size: 2.5rem;
   font-weight: bold;
-  color: #ffe6f1;
+  color: #ffffff;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -140,7 +140,7 @@ body,
   border: none;
   color: #008080;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   padding: 0;
 }
 

@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import "./modal.css";
+import GoogleLogo from "../assets/googleLogo.png";
 
-function SignInModal({ onClose, onCreateAccount }) {
+function SignInModal({ onClose, onGoogleSignIn, onEmailSignIn, onCreateAccount }) {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
     return (
         <div className="modal-overlay">
             <div className="modal">
                 <button className="close-btn" onClick={onClose}>×</button>
                 <h2>Sign In</h2>
 
-                <form className="modal-form">
+                <form
+                    className="modal-form"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        onEmailSignIn(email, password);
+                    }}
+                >
                     <label>
                         Email
                         <input type="email" placeholder="you@example.com" />
@@ -24,6 +34,15 @@ function SignInModal({ onClose, onCreateAccount }) {
                     </button>
 
                     <p className="modal-footer">
+                    <button
+                        type="button" // important!
+                        className="google-btn"
+                        onClick={onGoogleSignIn}
+                        >
+                            <img src={GoogleLogo} alt="Google Logo" />
+                            Continue with Google
+                    </button>
+            
                         Not registered?{" "}
                         <button
                             type="button"
