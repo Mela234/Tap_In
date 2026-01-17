@@ -1,235 +1,274 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 from typing import Optional
+from app.core.database import SessionLocal
+from app.models.raw_data import RawData
+from datetime import datetime, timedelta
 
 router = APIRouter()
 
-# Dummy trends data
-DUMMY_TRENDS = [
-    {
-        "id": 1,
-        "type": "video_trend",
-        "title": "NPC Streaming",
-        "category": "TikTok",
-        "description": "Creators act like video game NPCs, repeating phrases and movements when they receive virtual gifts",
-        "relevance_score": 0.95,
-        "week_start": "2024-12-23",
-        "week_end": "2024-12-29",
-        "definition": None,
-        "how_it_works": "Stream live on TikTok, repeat catchphrases when viewers send virtual gifts",
-        "key_creators": [
-            {"name": "Pinkydoll", "platform": "tiktok", "followers": "2.3M"}
-        ],
-        "signature_phrases": ["Yes yes yes!", "Ice cream so good!", "Gang gang!"],
-        "example_videos": [
-            {
-                "url": "https://youtube.com/watch?v=xyz123",
-                "title": "NPC Streaming Explained",
-                "views": 2500000,
-                "platform": "youtube"
-            }
-        ],
-        "why_it_matters": "Represents a shift in how Gen Z monetizes creativity through interactive performance",
-        "how_to_talk_about_it": [
-            "Ask: 'Have you seen those NPC streamers?'",
-            "Try: 'What do you think about this new streaming style?'"
-        ],
-        "context_for_adults": "Think of it like street performers - they respond to tips with specific actions",
-        "source": "youtube",
-        "source_links": ["https://youtube.com/watch?v=xyz123"],
-        "tags": ["streaming", "monetization", "interactive", "tiktok"],
-        "created_at": "2024-12-30T10:00:00Z"
-    },
-    {
-        "id": 2,
-        "type": "slang",
-        "title": "Rizz",
-        "category": "Slang",
-        "description": "Charisma or ability to attract romantic interest",
-        "relevance_score": 0.92,
-        "week_start": "2024-12-23",
-        "week_end": "2024-12-29",
-        "definition": "Shortened from 'charisma', refers to ability to attract romantic interest",
-        "pronunciation": "riz (rhymes with fizz)",
-        "origin": "Popularized by streamer Kai Cenat",
-        "example_usage": [
-            "He's got rizz - watch how he talks to people",
-            "She rizzed him up at the party",
-            "No rizz = no game"
-        ],
-        "related_terms": ["W rizz (good)", "L rizz (bad)", "unspoken rizz"],
-        "why_it_matters": "Most popular Gen Z slang term for dating appeal in 2024",
-        "how_to_talk_about_it": [
-            "Ask: 'What does rizz mean to you?'",
-            "Try: 'I heard about this rizz thing - can you explain it?'"
-        ],
-        "when_to_use": "When discussing someone's charm or dating appeal",
-        "when_not_to_use": "Don't use it ironically - Gen Z will know you're mocking",
-        "source": "google_trends",
-        "interest_score": 71.7,
-        "tags": ["slang", "dating", "charisma"],
-        "created_at": "2024-12-30T09:00:00Z"
-    },
-    {
-        "id": 3,
-        "type": "music",
-        "title": "Brat Summer Nostalgia",
-        "category": "Music",
-        "description": "People reminiscing about the cultural moment around Charli XCX's album BRAT from summer 2024",
-        "relevance_score": 0.88,
-        "week_start": "2024-12-23",
-        "week_end": "2024-12-29",
-        "artist": "Charli XCX",
-        "song_album": "BRAT",
-        "key_songs": ["360", "Apple", "Girl, so confusing (feat. Lorde)"],
-        "cultural_impact": "Influenced fashion (lime green), attitude (authenticity over perfection), and sparked conversations about female friendships",
-        "why_gen_z_loves_it": "Embraces imperfection and messy emotions instead of curated perfection",
-        "aesthetic": "Lime green, party girl energy, chaotic glamour",
-        "peak_period": "Summer 2024",
-        "why_it_matters": "Represents Gen Z's rejection of perfectionism in favor of authentic self-expression",
-        "how_to_talk_about_it": [
-            "Ask: 'What made brat summer so special for you?'",
-            "Try: 'I noticed everyone was talking about being a brat - what did that mean?'"
-        ],
-        "source": "twitter",
-        "source_links": ["https://twitter.com/i/web/status/123"],
-        "tags": ["music", "culture", "fashion", "authenticity"],
-        "created_at": "2024-12-30T08:00:00Z"
-    },
-    {
-        "id": 4,
-        "type": "meme",
-        "title": "Demure",
-        "category": "Memes",
-        "description": "Satirical trend where people describe mundane tasks as 'very demure, very mindful'",
-        "relevance_score": 0.97,
-        "week_start": "2024-12-23",
-        "week_end": "2024-12-29",
-        "origin": "TikTok user Jools Lebron's satirical videos about workplace professionalism",
-        "catchphrase": "Very demure, very mindful, very cutesy",
-        "meaning": "Satirical take on workplace professionalism and feminine expectations",
-        "how_its_used": [
-            "Ironically describing mundane tasks as 'demure'",
-            "Mocking corporate culture",
-            "Self-deprecating humor about trying to be professional"
-        ],
-        "variations": ["Very demure, very mindful", "See how I do that? Very demure."],
-        "why_it_went_viral": "Perfectly captures Gen Z's ironic relationship with professionalism",
-        "why_it_matters": "Shows Gen Z's clever way of critiquing workplace culture through humor",
-        "how_to_talk_about_it": [
-            "Ask: 'Why did the demure trend resonate with you?'",
-            "Try: 'I saw people saying demure everywhere - what's that about?'"
-        ],
-        "source": "tiktok",
-        "source_links": ["https://tiktok.com/@joolieannie/video/123"],
-        "tags": ["meme", "workplace", "satire", "humor"],
-        "created_at": "2024-12-29T15:00:00Z"
-    }
-]
-
-# Archive data (past weeks)
-ARCHIVE_DATA = [
-    {
-        "week_start": "2024-12-16",
-        "week_end": "2024-12-22",
-        "trend_count": 4,
-        "top_trends": [
-            {"id": 11, "title": "Sigma Male Grindset", "category": "Memes", "relevance_score": 0.85},
-            {"id": 12, "title": "Coastal Grandmother", "category": "Fashion", "relevance_score": 0.78},
-            {"id": 13, "title": "No Cap", "category": "Slang", "relevance_score": 0.81}
-        ]
-    },
-    {
-        "week_start": "2024-12-09",
-        "week_end": "2024-12-15",
-        "trend_count": 4,
-        "top_trends": [
-            {"id": 21, "title": "Skibidi Toilet", "category": "Memes", "relevance_score": 0.92},
-            {"id": 22, "title": "Yap", "category": "Slang", "relevance_score": 0.76},
-            {"id": 23, "title": "Clean Girl Aesthetic", "category": "Fashion", "relevance_score": 0.79}
-        ]
-    },
-    {
-        "week_start": "2024-12-02",
-        "week_end": "2024-12-08",
-        "trend_count": 4,
-        "top_trends": [
-            {"id": 31, "title": "Girl Dinner", "category": "TikTok", "relevance_score": 0.84},
-            {"id": 32, "title": "Bussin", "category": "Slang", "relevance_score": 0.73},
-            {"id": 33, "title": "Main Character Energy", "category": "Social Issues", "relevance_score": 0.80}
-        ]
-    },
-    {
-        "week_start": "2024-11-25",
-        "week_end": "2024-12-01",
-        "trend_count": 4,
-        "top_trends": [
-            {"id": 41, "title": "Delulu", "category": "Slang", "relevance_score": 0.86},
-            {"id": 42, "title": "Quiet Luxury", "category": "Fashion", "relevance_score": 0.82},
-            {"id": 43, "title": "Bed Rotting", "category": "TikTok", "relevance_score": 0.77}
-        ]
-    }
-]
+# Dependency to get database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @router.get("/trends/weekly")
-def get_weekly_trends():
-    """Get current week's trending topics"""
+def get_weekly_trends(db: Session = Depends(get_db)):
+    """Get current week's trending topics from scraped data"""
+    
+    # Get data from the last 7 days
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    
+    # Query raw data
+    # raw_data = db.query(RawData).filter(
+    #     RawData.collected_at >= week_ago
+    # ).limit(50).all()  # Get up to 50 recent items
+    raw_data = db.query(RawData).order_by(
+        RawData.collected_at.desc()
+    ).limit(50).all()
+    
+    if not raw_data:
+        return {
+            "week_start": datetime.utcnow().strftime("%Y-%m-%d"),
+            "week_end": datetime.utcnow().strftime("%Y-%m-%d"),
+            "trends": []
+        }
+    
+    if not raw_data:
+        return {
+            "week_start": datetime.utcnow().strftime("%Y-%m-%d"),
+            "week_end": datetime.utcnow().strftime("%Y-%m-%d"),
+            "trends": []
+        }
+    
+    # Convert raw data to trend format
+    trends = []
+    trend_id = 1
+    
+    for item in raw_data[:20]:  # Return top 20
+        trend = format_raw_data_as_trend(item, trend_id)
+        if trend:
+            trends.append(trend)
+            trend_id += 1
+    
     return {
-        "week_start": "2024-12-23",
-        "week_end": "2024-12-29",
-        "trends": DUMMY_TRENDS
+        "week_start": (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d"),
+        "week_end": datetime.utcnow().strftime("%Y-%m-%d"),
+        "trends": trends
     }
 
 
-@router.get("/trends/{trend_id}")
-def get_trend_by_id(trend_id: int):
-    """Get detailed information about a specific trend"""
-    trend = next((t for t in DUMMY_TRENDS if t["id"] == trend_id), None)
+def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
+    """Convert raw_data to trend format"""
     
-    if not trend:
+    # Determine trend type based on source
+    if raw_data.source == "urban_dictionary":
+        return {
+            "id": trend_id,
+            "type": "slang",
+            "title": raw_data.extra_data.get("word", "Unknown"),
+            "category": "Slang",
+            "description": raw_data.extra_data.get("definition", raw_data.content)[:200],
+            "relevance_score": 0.85,
+            "source": raw_data.source,
+            "source_links": [raw_data.url] if raw_data.url else [],
+            "example_usage": [raw_data.extra_data.get("example", "")],
+            "upvotes": raw_data.extra_data.get("upvotes", "0"),
+            "created_at": raw_data.collected_at.isoformat()
+        }
+    
+    elif raw_data.source == "reddit":
+        return {
+            "id": trend_id,
+            "type": "post",
+            "title": raw_data.content[:100],  # Post title
+            "category": "Reddit",
+            "description": raw_data.content,
+            "relevance_score": 0.80,
+            "source": raw_data.source,
+            "source_links": [raw_data.url] if raw_data.url else [],
+            "subreddit": raw_data.extra_data.get("subreddit", "unknown"),
+            "upvotes": raw_data.extra_data.get("score", "0"),
+            "comments": raw_data.extra_data.get("comments", "0"),
+            "created_at": raw_data.collected_at.isoformat()
+        }
+    
+    elif raw_data.source == "youtube":
+        title_parts = raw_data.content.split('\n')
+        title = title_parts[0] if title_parts else "Unknown"
+        
+        return {
+            "id": trend_id,
+            "type": "video",
+            "title": title[:100],
+            "category": "YouTube",
+            "description": raw_data.content,
+            "relevance_score": 0.88,
+            "source": raw_data.source,
+            "source_links": [raw_data.url] if raw_data.url else [],
+            "channel": raw_data.extra_data.get("channel_title", "Unknown"),
+            "views": raw_data.extra_data.get("views", 0),
+            "likes": raw_data.extra_data.get("likes", 0),
+            "created_at": raw_data.collected_at.isoformat()
+        }
+    
+    elif raw_data.source in ["buzzfeed", "complex", "thecut", "refinery29"]:
+        return {
+            "id": trend_id,
+            "type": "article",
+            "title": raw_data.content[:100],
+            "category": "News",
+            "description": raw_data.content,
+            "relevance_score": 0.75,
+            "source": raw_data.source,
+            "source_links": [raw_data.url] if raw_data.url else [],
+            "created_at": raw_data.collected_at.isoformat()
+        }
+    
+    elif raw_data.source == "google_trends":
+        return {
+            "id": trend_id,
+            "type": "keyword",
+            "title": raw_data.content,
+            "category": "Trending",
+            "description": f"Search interest: {raw_data.extra_data.get('avg_interest_score', 0)}/100",
+            "relevance_score": raw_data.extra_data.get('avg_interest_score', 0) / 100,
+            "source": raw_data.source,
+            "interest_score": raw_data.extra_data.get('avg_interest_score', 0),
+            "created_at": raw_data.collected_at.isoformat()
+        }
+    
+    else:
+        # Generic format for other sources
+        return {
+            "id": trend_id,
+            "type": "general",
+            "title": raw_data.content[:100],
+            "category": "General",
+            "description": raw_data.content,
+            "relevance_score": 0.70,
+            "source": raw_data.source,
+            "source_links": [raw_data.url] if raw_data.url else [],
+            "created_at": raw_data.collected_at.isoformat()
+        }
+
+
+@router.get("/trends/{trend_id}")
+def get_trend_by_id(trend_id: int, db: Session = Depends(get_db)):
+    """Get detailed information about a specific trend"""
+    
+    # Get raw data by ID
+    raw_data = db.query(RawData).filter(RawData.id == trend_id).first()
+    
+    if not raw_data:
         raise HTTPException(status_code=404, detail="Trend not found")
     
+    trend = format_raw_data_as_trend(raw_data, trend_id)
     return trend
 
 
 @router.get("/trends/category/{category}")
-def get_trends_by_category(category: str):
+def get_trends_by_category(category: str, db: Session = Depends(get_db)):
     """Get trends filtered by category"""
-    filtered_trends = [t for t in DUMMY_TRENDS if t["category"].lower() == category.lower()]
     
-    if not filtered_trends:
-        raise HTTPException(status_code=404, detail=f"No trends found for category: {category}")
+    # Map category to source
+    source_map = {
+        "slang": "urban_dictionary",
+        "reddit": "reddit",
+        "youtube": "youtube",
+        "news": ["buzzfeed", "complex", "thecut", "refinery29"],
+        "trending": "google_trends"
+    }
+    
+    source = source_map.get(category.lower())
+    
+    if not source:
+        raise HTTPException(status_code=404, detail=f"Unknown category: {category}")
+    
+    # Query database
+    if isinstance(source, list):
+        raw_data = db.query(RawData).filter(RawData.source.in_(source)).limit(20).all()
+    else:
+        raw_data = db.query(RawData).filter(RawData.source == source).limit(20).all()
+    
+    if not raw_data:
+        return {
+            "category": category,
+            "trends": []
+        }
+    
+    # Format trends
+    trends = []
+    for idx, item in enumerate(raw_data, 1):
+        trend = format_raw_data_as_trend(item, idx)
+        if trend:
+            trends.append(trend)
     
     return {
         "category": category,
-        "trends": filtered_trends
+        "trends": trends
     }
 
 
 @router.get("/trends/archive")
-def get_archive(page: int = 1, limit: int = 10):
-    """Get archive of past weeks' trends"""
+def get_archive(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
+    """Get archive of past data"""
+    
+    # Get all data grouped by week
+    # This is simplified - you'd want proper weekly grouping
+    
+    offset = (page - 1) * limit
+    
+    raw_data = db.query(RawData).order_by(
+        RawData.collected_at.desc()
+    ).offset(offset).limit(limit).all()
+    
+    archives = []
+    for item in raw_data:
+        archives.append({
+            "id": item.id,
+            "title": item.content[:100],
+            "source": item.source,
+            "collected_at": item.collected_at.isoformat()
+        })
+    
     return {
         "page": page,
         "total_pages": 1,
-        "total_weeks": len(ARCHIVE_DATA),
-        "archives": ARCHIVE_DATA
+        "archives": archives
     }
 
 
 @router.get("/trends/archive/{week_start}")
-def get_archive_week(week_start: str):
+def get_archive_week(week_start: str, db: Session = Depends(get_db)):
     """Get trends for a specific week"""
-    week = next((w for w in ARCHIVE_DATA if w["week_start"] == week_start), None)
     
-    if not week:
-        raise HTTPException(status_code=404, detail="Week not found")
+    # Parse week_start
+    try:
+        start_date = datetime.strptime(week_start, "%Y-%m-%d")
+        end_date = start_date + timedelta(days=7)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
     
-    # For demo, return the top trends as full trends
-    # In production, this would fetch actual trends from that week
+    # Query data from that week
+    raw_data = db.query(RawData).filter(
+        RawData.collected_at >= start_date,
+        RawData.collected_at < end_date
+    ).limit(20).all()
+    
+    trends = []
+    for idx, item in enumerate(raw_data, 1):
+        trend = format_raw_data_as_trend(item, idx)
+        if trend:
+            trends.append(trend)
+    
     return {
-        "week_start": week["week_start"],
-        "week_end": week["week_end"],
-        "trend_count": week["trend_count"],
-        "trends": week["top_trends"]
+        "week_start": week_start,
+        "week_end": end_date.strftime("%Y-%m-%d"),
+        "trend_count": len(trends),
+        "trends": trends
     }
