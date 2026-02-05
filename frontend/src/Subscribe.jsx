@@ -2,7 +2,7 @@ import React from "react";
 
 function Subscribe() {
   const handleSubscribe = async () => {
-    const res = await fetch("http://localhost:5174/create-checkout-session", {
+    const res = await fetch("FRONTEND_URL/create-checkout-session", {
       method: "POST",
     });
 

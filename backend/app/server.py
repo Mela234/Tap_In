@@ -19,7 +19,7 @@ app = FastAPI()
 # Allow React frontend to call backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5174"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,8 +39,8 @@ async def create_checkout_session():
                     "quantity": 1,
                 }
             ],
-            success_url="http://localhost:5174/success",
-            cancel_url="http://localhost:5174/cancel",
+            success_url=FRONTEND_URL+ "/success",
+            cancel_url=FRONTEND_URL + "/cancel",
         )
 
         print("✅ Checkout session created:", session.id)
