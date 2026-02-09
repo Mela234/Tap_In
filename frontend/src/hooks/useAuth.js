@@ -26,6 +26,7 @@ export function useAuth() {
           email: firebaseUser.email,
           name: firebaseUser.displayName,
           isSubscribed: userDoc.exists() ? userDoc.data().isSubscribed : false,
+          isAdmin: userDoc.exists() ? userDoc.data().isAdmin : false,
         });
       } else {
         setUser(null);
@@ -50,6 +51,7 @@ export function useAuth() {
           uid: result.user.uid,
           email: result.user.email,
           isSubscribed: false,
+          isAdmin: false,
           createdAt: new Date(),
         });
       }
@@ -59,6 +61,7 @@ export function useAuth() {
         email: result.user.email,
         name: result.user.displayName,
         isSubscribed: userDoc.exists() ? userDoc.data().isSubscribed : false,
+        isAdmin: userDoc.exists() ? userDoc.data().isAdmin : false,
       });
     } catch (error) {
       console.error("Google sign-in error:", error);
@@ -79,6 +82,7 @@ export function useAuth() {
         email: result.user.email,
         name: result.user.displayName,
         isSubscribed: userDoc.exists() ? userDoc.data().isSubscribed : false,
+        isAdmin: userDoc.exists() ? userDoc.data().isAdmin : false,
       });
     } catch (error) {
       console.error("Email sign-in error:", error);
@@ -99,6 +103,7 @@ export function useAuth() {
         uid: userCredential.user.uid,
         email: userCredential.user.email,
         isSubscribed: false,
+        isAdmin: false,
         createdAt: new Date(),
       };
 
