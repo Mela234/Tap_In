@@ -1,6 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import trends, categories, health
+from app.api.routes import trends, categories, health, admin
+import firebase_admin
+from firebase_admin import credentials
+
+# Initialize Firebase Admin SDK
+try:
+    cred = credentials.Certificate("serviceAccountKey.json")
+    firebase_admin.initialize_app(cred)
+    print("✅ Firebase Admin initialized successfully")
+except Exception as e:
+    print(f"⚠️  Firebase Admin initialization failed: {e}")
+    print("   Admin endpoints will not work without Firebase Admin SDK")
 
 app = FastAPI(
     title="TAPIN API",
@@ -21,6 +32,7 @@ app.add_middleware(
 app.include_router(health.router, prefix="/api", tags=["Health"])
 app.include_router(categories.router, prefix="/api", tags=["Categories"])
 app.include_router(trends.router, prefix="/api", tags=["Trends"])
+app.include_router(admin.router, prefix="/api", tags=["Admin"])  # ← NEW
 
 @app.get("/")
 def root():
