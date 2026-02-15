@@ -4,6 +4,8 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth"; // ← Import the hook
 import ProtectedRoute from "./ProtectedRoute";
 import Subscribe from "./Subscribe";
+import AdminCreateTrend from "./pages/adminPage";
+import AdminProtectedRoute from "./adminProtectedRoute";
 import HighlightCarousel from "./HighlightCarousel";
 import ContactModal from "./Modals/contactModal";
 import SignInModal from "./Modals/signInModal";
@@ -78,6 +80,16 @@ function App() {
           <button className="link-btn" onClick={() => setShowContact(true)}>
             Contact Us
           </button>
+          {/* Admin button */}
+          {user?.isAdmin && (
+            <button
+              className="link-btn"
+              onClick={() => navigate("/admin")}
+            >
+              Admin
+            </button>
+          )}
+
 
           {/* Conditional rendering */}
           {user ? (
@@ -136,6 +148,16 @@ function App() {
         />
 
         <Route path="/subscribe" element={<Subscribe user={user} />} />
+
+        <Route
+            path="/admin"
+            element={
+              <AdminProtectedRoute user={user}>
+                <AdminCreateTrend />
+              </AdminProtectedRoute>
+            }
+        />
+
       </Routes>
 
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
