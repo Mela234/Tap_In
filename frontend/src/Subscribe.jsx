@@ -2,12 +2,29 @@ import React from "react";
 
 function Subscribe() {
   const handleSubscribe = async () => {
-    const res = await fetch("http://127.0.0.1:4242/create-checkout-session", {
-      method: "POST",
-    });
+  try {
+    const res = await fetch(
+      "http://127.0.0.1:4242/api/create-checkout-session",
+      { method: "POST" }
+    );
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
 
     const data = await res.json();
-    window.location.href = data.url;
+
+    if (!data.url) {
+      throw new Error("No checkout URL returned");
+    }
+
+      window.location.href = data.url;
+    }
+    catch (err) {
+      console.error("Stripe checkout failed:", err);
+      alert("Checkout failed — check console + backend logs");
+    }
   };
 
   return (

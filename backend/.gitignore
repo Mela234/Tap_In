@@ -76,4 +76,4 @@ temp/
 alembic/versions/*.pyc
 
 #firebase
-.serviceAccountKey/
+serviceAccountKey
