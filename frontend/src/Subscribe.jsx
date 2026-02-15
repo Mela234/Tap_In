@@ -5,7 +5,10 @@ function Subscribe() {
   try {
     const res = await fetch(
       "http://127.0.0.1:4242/api/create-checkout-session",
-      { method: "POST" }
+      { method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: user.uid }),
+      }
     );
 
     if (!res.ok) {

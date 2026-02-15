@@ -13,6 +13,8 @@ import CreateAccountModal from "./Modals/createAccountModal";
 import AboutModal from "./Modals/aboutModal";
 import TrendWeekly from "./pages/trendWeekly";
 import Archive from "./pages/archive";
+import SubscribeSuccess from "./subscribeSuccess";
+
 
 function App() {
   // Use the custom hook
@@ -148,6 +150,7 @@ function App() {
         />
 
         <Route path="/subscribe" element={<Subscribe user={user} />} />
+        <Route path="/SubscriveSuccess" element={<SubscribeSuccess />} />
 
         <Route
             path="/admin"
