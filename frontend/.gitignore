@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Firebase - NEVER commit this!
+serviceAccountKey.json

@@ -47,6 +47,7 @@ export function useAuth() {
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
+        console.log("we got in here");
         await setDoc(userDocRef, {
           uid: result.user.uid,
           email: result.user.email,
@@ -55,7 +56,7 @@ export function useAuth() {
           createdAt: new Date(),
         });
       }
-
+      console.log(`this is the user doc: ${userDoc.get("isAdmin")}`);
       setUser({
         uid: result.user.uid,
         email: result.user.email,
@@ -96,7 +97,7 @@ export function useAuth() {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
 
       const newUser = {
