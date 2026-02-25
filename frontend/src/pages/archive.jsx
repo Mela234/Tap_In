@@ -1,59 +1,53 @@
 import { useEffect, useState } from "react";
-import { getWeeklyTrends } from "../services/api";
+import { getArchive } from "../services/api";
+import { useAuth } from "../hooks/useAuth";
+import Subscribe from "../Subscribe";
 
-function TrendWeekly() {
+function Archive() {
   const [trends, setTrends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    const fetchTrends = async () => {
+    const fetchArchive = async () => {
       try {
         setLoading(true);
-        const data = await getWeeklyTrends();
-        setTrends(data.trends);
+        const data = await getArchive();
+        setTrends(data.archives);
       } catch (err) {
-        console.error("Error fetching trends:", err);
-        setError("Failed to load trends");
+        console.error("Error fetching archive:", err);
+        setError("Failed to load archive");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTrends();
+    fetchArchive();
   }, []);
-  console.log("these are the trends", trends);
+
   if (loading) {
     return (
-      <div className="weekly-page">
-        <p className="loading">Loading trends...</p>
+      <div className="archive-page">
+        <p className="loading">Loading archive...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="weekly-page">
+      <div className="archive-page">
         <p className="error">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="weekly-page">
-      <h2>This Week's Trends</h2>
-
-      {trends.map((trend) => (
-        <div key={trend.id} className="trend-card">
-          <span className={`category ${trend.category?.toLowerCase()}`}>
-            {trend.category}
-          </span>
-          <h3>{trend.title}</h3>
-          <p>{trend.description}</p>
-        </div>
-      ))}
+    <div className="archive-page">
+      <h2 className="page-title">Trend Archive</h2>
+      <Subscribe trends={trends} user={user} />
     </div>
   );
 }
 
-export default TrendWeekly;
+export default Archive;

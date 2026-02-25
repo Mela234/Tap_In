@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import { getWeeklyTrends } from "../services/api";
+import { useAuth } from "../hooks/useAuth";
+import Subscribe from "../Subscribe";
 
 function TrendWeekly() {
   const [trends, setTrends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchTrends = async () => {
       try {
         setLoading(true);
         const data = await getWeeklyTrends();
+        console.log("📊 Weekly trends data:", data); // ← ADD THIS
+        console.log("📊 Trends array:", data.trends); // ← ADD THIS
         setTrends(data.trends);
       } catch (err) {
         console.error("Error fetching trends:", err);
@@ -38,20 +43,17 @@ function TrendWeekly() {
       </div>
     );
   }
+  console.log("🔍 Current state:", {
+    loading,
+    error,
+    trendsCount: trends.length,
+    user,
+  });
 
   return (
     <div className="weekly-page">
-      <h2>This Week's Trends</h2>
-
-      {trends.map((trend) => (
-        <div key={trend.id} className="trend-card">
-          <span className={`category ${trend.category?.toLowerCase()}`}>
-            {trend.category}
-          </span>
-          <h3>{trend.title}</h3>
-          <p>{trend.description}</p>
-        </div>
-      ))}
+      <h2 className="page-title">This Week's Trends</h2>
+      <Subscribe trends={trends} user={user} />
     </div>
   );
 }

@@ -1,0 +1,191 @@
+.subscribe-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  width: 100%;
+}
+
+.trends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.trend-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: transform 0.2s;
+}
+
+.trend-card:hover {
+  transform: translateY(-2px);
+}
+
+.trend-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.trend-category {
+  background: rgba(241, 132, 93, 0.2);
+  color: rgb(241, 132, 93);
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-family: "Patrick Hand", cursive;
+}
+
+.trend-score {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.trend-title {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.4rem;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.trend-description {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  margin: 0 0 0.5rem 0;
+}
+
+.trend-why {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  margin: 0;
+}
+
+.locked-section {
+  position: relative;
+  margin-top: 1.5rem;
+}
+
+.locked-trends {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.trend-card-locked {
+  pointer-events: none;
+  user-select: none;
+  filter: blur(1px);
+}
+
+.locked-fade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(1, 43, 43, 0.7) 40%,
+    rgba(1, 43, 43, 0.97) 100%
+  );
+  pointer-events: none;
+  border-radius: 16px;
+  z-index: 1;
+}
+
+.paywall-card {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(241, 132, 93, 0.4);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  margin-top: -80px;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(241, 132, 93, 0.15);
+}
+
+.lock-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.paywall-card h2 {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.8rem;
+  margin: 0 0 1rem 0;
+  color: white;
+}
+
+.paywall-card p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.05rem;
+  max-width: 400px;
+  margin: 0 auto 1rem;
+  line-height: 1.6;
+}
+
+.paywall-price {
+  font-family: "Patrick Hand", cursive;
+  font-size: 2rem;
+  color: rgb(241, 132, 93);
+  margin: 0.5rem 0 0.25rem;
+}
+
+.paywall-cancel {
+  font-size: 0.85rem !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.subscribe-btn {
+  background: rgb(241, 132, 93);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.9rem 2.5rem;
+  font-size: 1.1rem;
+  font-family: "Patrick Hand", cursive;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.subscribe-btn:hover {
+  background: rgb(220, 110, 70);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(241, 132, 93, 0.4);
+  border-color: transparent;
+}
+
+.page-title {
+  font-family: "Patrick Hand", cursive;
+  font-size: 2rem;
+  text-align: center;
+  margin: 2rem 0 1rem;
+  color: white;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.error {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: #ff4444;
+}
