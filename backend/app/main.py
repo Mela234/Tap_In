@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import trends, categories, health, admin, stripe
+from app.tasks.email_scheduler import start_email_scheduler
 import firebase_admin
 from firebase_admin import credentials
 
@@ -38,6 +39,19 @@ app.include_router(
     prefix="/api",
     tags=["Stripe"]
 )
+
+# Initialize email scheduler on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize background tasks on application startup"""
+    print("\n🚀 Starting TAPIN application...")
+    
+    # Start email scheduler
+    try:
+        start_email_scheduler()
+        print("✅ Email scheduler initialized successfully")
+    except Exception as e:
+        print(f"⚠️  Failed to initialize email scheduler: {e}")
 
 @app.get("/")
 def root():

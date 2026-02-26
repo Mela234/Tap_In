@@ -10,7 +10,9 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
-    is_subscribed = Column(Boolean, default=False) 
+    is_subscribed = Column(Boolean, default=False)
+    is_email_subscriber = Column(Boolean, default=False)  # For bi-weekly email digest
+    last_email_sent = Column(DateTime, nullable=True)  # Track when last email was sent
     created_at = Column(DateTime, default=datetime.utcnow)
     is_admin = Column(Boolean, default=False)
 

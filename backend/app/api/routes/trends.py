@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from typing import Optional
+from pydantic import BaseModel, EmailStr
 from app.core.database import SessionLocal
 from app.models.raw_data import RawData
+from app.models.user import User
 from datetime import datetime, timedelta
 
 router = APIRouter()
@@ -272,3 +274,107 @@ def get_archive_week(week_start: str, db: Session = Depends(get_db)):
         "trend_count": len(trends),
         "trends": trends
     }
+
+
+# ============ EMAIL SUBSCRIPTION ENDPOINTS ============
+
+class EmailSubscriptionRequest(BaseModel):
+    email: str
+    subscribe: bool
+
+
+class EmailSubscriptionStatus(BaseModel):
+    email: str
+    is_email_subscriber: bool
+    last_email_sent: Optional[str] = None
+
+
+@router.post("/email/subscribe")
+def subscribe_to_email_digest(
+    request: EmailSubscriptionRequest,
+    db: Session = Depends(get_db)
+):
+    """Subscribe or unsubscribe from bi-weekly email digest"""
+    try:
+        # Check if user exists
+        user = db.query(User).filter(User.email == request.email).first()
+        
+        if not user:
+            # Create new user if doesn't exist (for email-only subscribers)
+            user = User(
+                email=request.email,
+                hashed_password="",  # Placeholder for email-only subscribers
+                is_active=True,
+                is_email_subscriber=request.subscribe
+            )
+            db.add(user)
+        else:
+            # Update existing user
+            user.is_email_subscriber = request.subscribe
+        
+        db.commit()
+        db.refresh(user)
+        
+        status = "subscribed" if request.subscribe else "unsubscribed"
+        return {
+            "success": True,
+            "message": f"Successfully {status} from email digest",
+            "email": user.email,
+            "is_email_subscriber": user.is_email_subscriber
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update subscription: {str(e)}"
+        )
+
+
+@router.get("/email/subscription-status/{email}")
+def get_subscription_status(email: str, db: Session = Depends(get_db)):
+    """Get email subscription status for a user"""
+    try:
+        user = db.query(User).filter(User.email == email).first()
+        
+        if not user:
+            return {
+                "email": email,
+                "is_email_subscriber": False,
+                "last_email_sent": None
+            }
+        
+        return {
+            "email": user.email,
+            "is_email_subscriber": user.is_email_subscriber,
+            "last_email_sent": user.last_email_sent.isoformat() if user.last_email_sent else None
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get subscription status: {str(e)}"
+        )
+
+
+@router.post("/email/test-send/{email}")
+def test_send_digest_email(email: str, db: Session = Depends(get_db)):
+    """Test endpoint to send a digest email immediately (for testing purposes)"""
+    try:
+        from app.tasks.email_scheduler import test_send_digest_email as send_test
+        
+        success = send_test(email)
+        
+        if success:
+            return {
+                "success": True,
+                "message": f"Test email sent successfully to {email}"
+            }
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to send test email to {email}"
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error sending test email: {str(e)}"
+        )
