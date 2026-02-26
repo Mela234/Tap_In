@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function AdminCreateTrend() {
     const [categories, setCategories] = useState([]);
