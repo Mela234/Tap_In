@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { api, getCategories } from "../services/api";
+import "./AdminPage.css";
 
 function AdminCreateTrend() {
   const [categories, setCategories] = useState([]);
@@ -20,7 +21,7 @@ function AdminCreateTrend() {
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-        setCategories(data);
+        setCategories(data.categories);
       } catch (err) {
         console.error("Error fetching categories:", err);
       }
@@ -36,7 +37,6 @@ function AdminCreateTrend() {
     e.preventDefault();
 
     try {
-      // Get Firebase auth token
       const user = auth.currentUser;
       if (!user) {
         alert("You must be signed in");
@@ -45,14 +45,13 @@ function AdminCreateTrend() {
 
       const token = await user.getIdToken();
 
-      // Create trend via API
       const response = await api.post("/admin/trends", form, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      alert("Trend created successfully!");
+      alert("Trend created successfully! ✅");
       console.log("Created trend:", response.data);
 
       // Reset form
@@ -74,122 +73,126 @@ function AdminCreateTrend() {
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "2rem auto", padding: "2rem" }}>
-      <h2>Create New Trend</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-      >
-        <input
-          name="title"
-          placeholder="Title"
-          value={form.title}
-          onChange={handleChange}
-          required
-          style={{ padding: "0.5rem" }}
-        />
+    <div className="admin-container">
+      <div className="admin-card">
+        <h2 className="admin-title">Create New Trend</h2>
+        <p className="admin-subtitle">Add manually curated trends to TAPIN</p>
 
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={form.description}
-          onChange={handleChange}
-          required
-          rows="4"
-          style={{ padding: "0.5rem" }}
-        />
+        <form onSubmit={handleSubmit} className="admin-form">
+          <div className="form-group">
+            <label>Title *</label>
+            <input
+              name="title"
+              placeholder="e.g., Rizz, NPC Streaming, Brat Summer"
+              value={form.title}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <textarea
-          name="why_it_matters"
-          placeholder="Why it matters"
-          value={form.why_it_matters}
-          onChange={handleChange}
-          rows="3"
-          style={{ padding: "0.5rem" }}
-        />
+          <div className="form-group">
+            <label>Description *</label>
+            <textarea
+              name="description"
+              placeholder="Brief explanation of what this trend is..."
+              value={form.description}
+              onChange={handleChange}
+              required
+              rows="4"
+            />
+          </div>
 
-        <textarea
-          name="how_to_talk_about_it"
-          placeholder="How to talk about it"
-          value={form.how_to_talk_about_it}
-          onChange={handleChange}
-          rows="3"
-          style={{ padding: "0.5rem" }}
-        />
+          <div className="form-group">
+            <label>Why It Matters</label>
+            <textarea
+              name="why_it_matters"
+              placeholder="Why should parents/teachers care about this?"
+              value={form.why_it_matters}
+              onChange={handleChange}
+              rows="3"
+            />
+          </div>
 
-        <select
-          name="category_id"
-          value={form.category_id}
-          onChange={handleChange}
-          style={{ padding: "0.5rem" }}
-        >
-          <option value="">Select Category (Optional)</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+          <div className="form-group">
+            <label>How to Talk About It</label>
+            <textarea
+              name="how_to_talk_about_it"
+              placeholder="Tips for starting conversations with Gen Z about this..."
+              value={form.how_to_talk_about_it}
+              onChange={handleChange}
+              rows="3"
+            />
+          </div>
 
-        <input
-          name="sources"
-          placeholder="Sources (URLs, comma separated)"
-          value={form.sources}
-          onChange={handleChange}
-          style={{ padding: "0.5rem" }}
-        />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Category</label>
+              <select
+                name="category_id"
+                value={form.category_id}
+                onChange={handleChange}
+              >
+                <option value="">Select Category (Optional)</option>
+                {Array.isArray(categories) &&
+                  categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
 
-        <label>
-          Relevance Score:
-          <input
-            type="number"
-            name="relevance_score"
-            value={form.relevance_score}
-            onChange={handleChange}
-            step="0.01"
-            min="0"
-            max="1"
-            style={{ padding: "0.5rem", marginLeft: "0.5rem" }}
-          />
-        </label>
+            <div className="form-group">
+              <label>Relevance Score</label>
+              <input
+                type="number"
+                name="relevance_score"
+                value={form.relevance_score}
+                onChange={handleChange}
+                step="0.01"
+                min="0"
+                max="1"
+              />
+            </div>
+          </div>
 
-        <label>
-          Week Start:
-          <input
-            type="date"
-            name="week_start"
-            value={form.week_start}
-            onChange={handleChange}
-            style={{ padding: "0.5rem", marginLeft: "0.5rem" }}
-          />
-        </label>
+          <div className="form-group">
+            <label>Sources</label>
+            <input
+              name="sources"
+              placeholder="URLs, comma separated"
+              value={form.sources}
+              onChange={handleChange}
+            />
+          </div>
 
-        <label>
-          Week End:
-          <input
-            type="date"
-            name="week_end"
-            value={form.week_end}
-            onChange={handleChange}
-            style={{ padding: "0.5rem", marginLeft: "0.5rem" }}
-          />
-        </label>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Week Start</label>
+              <input
+                type="date"
+                name="week_start"
+                value={form.week_start}
+                onChange={handleChange}
+              />
+            </div>
 
-        <button
-          type="submit"
-          style={{
-            padding: "0.75rem",
-            background: "#012b2b",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "1rem",
-          }}
-        >
-          Create Trend
-        </button>
-      </form>
+            <div className="form-group">
+              <label>Week End</label>
+              <input
+                type="date"
+                name="week_end"
+                value={form.week_end}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="admin-submit-btn">
+            Create Trend
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
