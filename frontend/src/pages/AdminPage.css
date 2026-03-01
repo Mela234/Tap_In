@@ -1,0 +1,141 @@
+.admin-container {
+  min-height: calc(100vh - 100px);
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.admin-card {
+  max-width: 800px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.25),
+    0 0 18px rgba(241, 132, 93, 0.15);
+}
+
+.admin-title {
+  font-family: "Patrick Hand", cursive;
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  color: white;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.admin-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin: 0 0 2rem 0;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.03em;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: white;
+  font-family: Arial, sans-serif;
+  transition: all 0.2s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: rgba(241, 132, 93, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(241, 132, 93, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.form-group select option {
+  background: #012b2b;
+  color: white;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.admin-submit-btn {
+  background: rgb(241, 132, 93);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-family: "Patrick Hand", cursive;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+  margin-top: 1rem;
+}
+
+.admin-submit-btn:hover {
+  background: rgb(220, 110, 70);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(241, 132, 93, 0.4);
+}
+
+.admin-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-card {
+    padding: 1.5rem;
+  }
+
+  .admin-title {
+    font-size: 2rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
