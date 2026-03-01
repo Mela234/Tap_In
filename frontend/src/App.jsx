@@ -223,7 +223,6 @@ function App() {
   } = useAuth();
 
   const [showSignIn, setShowSignIn] = useState(false);
-  const [dismissedSignIn, setDismissedSignIn] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showCreateAccount, setShowCreateAccount] = useState(false);
@@ -231,13 +230,11 @@ function App() {
   const navigate = useNavigate();
 
   const handleProtectedNav = (path) => {
-    // Not logged in → show sign in modal
-    if (!user && !dismissedSignIn) {
+    if (!user) {
       setShowSignIn(true);
       return;
     }
 
-    // Logged in → navigate to page (paywall handled on the page itself)
     navigate(path);
   };
 
@@ -356,7 +353,6 @@ function App() {
         <SignInModal
           onClose={() => {
             setShowSignIn(false);
-            setDismissedSignIn(true);
           }}
           onGoogleSignIn={async () => {
             await handleGoogleSignIn();
