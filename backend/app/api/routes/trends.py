@@ -478,4 +478,3 @@ def test_send_digest_email(email: str, db: Session = Depends(get_db)):
             status_code=500,
             detail=f"Error sending test email: {str(e)}"
         )
-        }
