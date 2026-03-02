@@ -2,6 +2,7 @@ import os
 import stripe
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
+from firebase_admin import firestore
 
 router = APIRouter()
 
@@ -9,8 +10,11 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 @router.post("/create-checkout-session")
-async def create_checkout_session():
+async def create_checkout_session(request: Request):
     try:
+        body = await request.json()
+        uid = body.get("uid")
+
         session = stripe.checkout.Session.create(
             mode="subscription",
             line_items=[
@@ -19,8 +23,11 @@ async def create_checkout_session():
                     "quantity": 1,
                 }
             ],
-            success_url="http://localhost:5173/success",
-            cancel_url="http://localhost:5173/cancel",
+            success_url="http://localhost:5173/subscribeSuccess",
+            cancel_url="http://localhost:5173/subscribeCancel",
+            metadata={
+            "firebaseUID": uid
+            }
         )
 
         return {"url": session.url}
@@ -43,6 +50,13 @@ async def stripe_webhook(request: Request):
 
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        print("✅ Subscription:", session.get("subscription"))
+        uid = session["metadata"].get("firebaseUID")
+
+        if uid:
+            db = firestore.client()
+            db.collection("users").document(uid).update({
+                "isSubscribed": True
+        })
+        print(f"✅ User {uid} subscription activated")
 
     return JSONResponse(content={"status": "success"})
