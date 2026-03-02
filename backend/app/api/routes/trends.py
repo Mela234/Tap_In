@@ -20,23 +20,9 @@ def get_db():
 def get_weekly_trends(db: Session = Depends(get_db)):
     """Get current week's trending topics from scraped data"""
     
-    # Get data from the last 7 days
-    week_ago = datetime.utcnow() - timedelta(days=7)
-    
-    # Query raw data
-    # raw_data = db.query(RawData).filter(
-    #     RawData.collected_at >= week_ago
-    # ).limit(50).all()  # Get up to 50 recent items
     raw_data = db.query(RawData).order_by(
         RawData.collected_at.desc()
     ).limit(50).all()
-    
-    if not raw_data:
-        return {
-            "week_start": datetime.utcnow().strftime("%Y-%m-%d"),
-            "week_end": datetime.utcnow().strftime("%Y-%m-%d"),
-            "trends": []
-        }
     
     if not raw_data:
         return {
@@ -60,6 +46,120 @@ def get_weekly_trends(db: Session = Depends(get_db)):
         "week_end": datetime.utcnow().strftime("%Y-%m-%d"),
         "trends": trends
     }
+
+
+# ARCHIVE ROUTES - MUST COME BEFORE /{trend_id}
+@router.get("/trends/archive")
+def get_archive(db: Session = Depends(get_db), page: int = 1, limit: int = 10):
+    """Get archive of past data"""
+    
+    offset = (page - 1) * limit
+    
+    raw_data = db.query(RawData).order_by(
+        RawData.collected_at.desc()
+    ).offset(offset).limit(limit).all()
+    
+    # Format as trends (same as weekly)
+    trends = []
+    for idx, item in enumerate(raw_data, start=offset + 1):
+        trend = format_raw_data_as_trend(item, idx)
+        if trend:
+            trends.append(trend)
+    
+    return {
+        "page": page,
+        "total_pages": 1,
+        "trends": trends
+    }
+
+
+@router.get("/trends/archive/{week_start}")
+def get_archive_week(week_start: str, db: Session = Depends(get_db)):
+    """Get trends for a specific week"""
+    
+    # Parse week_start
+    try:
+        start_date = datetime.strptime(week_start, "%Y-%m-%d")
+        end_date = start_date + timedelta(days=7)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+    
+    # Query data from that week
+    raw_data = db.query(RawData).filter(
+        RawData.collected_at >= start_date,
+        RawData.collected_at < end_date
+    ).limit(20).all()
+    
+    trends = []
+    for idx, item in enumerate(raw_data, 1):
+        trend = format_raw_data_as_trend(item, idx)
+        if trend:
+            trends.append(trend)
+    
+    return {
+        "week_start": week_start,
+        "week_end": end_date.strftime("%Y-%m-%d"),
+        "trend_count": len(trends),
+        "trends": trends
+    }
+
+
+@router.get("/trends/category/{category}")
+def get_trends_by_category(category: str, db: Session = Depends(get_db)):
+    """Get trends filtered by category"""
+    
+    # Map category to source
+    source_map = {
+        "slang": "urban_dictionary",
+        "reddit": "reddit",
+        "youtube": "youtube",
+        "news": ["buzzfeed", "complex", "thecut", "refinery29"],
+        "trending": "google_trends"
+    }
+    
+    source = source_map.get(category.lower())
+    
+    if not source:
+        raise HTTPException(status_code=404, detail=f"Unknown category: {category}")
+    
+    # Query database
+    if isinstance(source, list):
+        raw_data = db.query(RawData).filter(RawData.source.in_(source)).limit(20).all()
+    else:
+        raw_data = db.query(RawData).filter(RawData.source == source).limit(20).all()
+    
+    if not raw_data:
+        return {
+            "category": category,
+            "trends": []
+        }
+    
+    # Format trends
+    trends = []
+    for idx, item in enumerate(raw_data, 1):
+        trend = format_raw_data_as_trend(item, idx)
+        if trend:
+            trends.append(trend)
+    
+    return {
+        "category": category,
+        "trends": trends
+    }
+
+
+# DYNAMIC ROUTE - MUST COME LAST
+@router.get("/trends/{trend_id}")
+def get_trend_by_id(trend_id: int, db: Session = Depends(get_db)):
+    """Get detailed information about a specific trend"""
+    
+    # Get raw data by ID
+    raw_data = db.query(RawData).filter(RawData.id == trend_id).first()
+    
+    if not raw_data:
+        raise HTTPException(status_code=404, detail="Trend not found")
+    
+    trend = format_raw_data_as_trend(raw_data, trend_id)
+    return trend
 
 
 def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
@@ -155,120 +255,3 @@ def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
             "source_links": [raw_data.url] if raw_data.url else [],
             "created_at": raw_data.collected_at.isoformat()
         }
-
-
-@router.get("/trends/{trend_id}")
-def get_trend_by_id(trend_id: int, db: Session = Depends(get_db)):
-    """Get detailed information about a specific trend"""
-    
-    # Get raw data by ID
-    raw_data = db.query(RawData).filter(RawData.id == trend_id).first()
-    
-    if not raw_data:
-        raise HTTPException(status_code=404, detail="Trend not found")
-    
-    trend = format_raw_data_as_trend(raw_data, trend_id)
-    return trend
-
-
-@router.get("/trends/category/{category}")
-def get_trends_by_category(category: str, db: Session = Depends(get_db)):
-    """Get trends filtered by category"""
-    
-    # Map category to source
-    source_map = {
-        "slang": "urban_dictionary",
-        "reddit": "reddit",
-        "youtube": "youtube",
-        "news": ["buzzfeed", "complex", "thecut", "refinery29"],
-        "trending": "google_trends"
-    }
-    
-    source = source_map.get(category.lower())
-    
-    if not source:
-        raise HTTPException(status_code=404, detail=f"Unknown category: {category}")
-    
-    # Query database
-    if isinstance(source, list):
-        raw_data = db.query(RawData).filter(RawData.source.in_(source)).limit(20).all()
-    else:
-        raw_data = db.query(RawData).filter(RawData.source == source).limit(20).all()
-    
-    if not raw_data:
-        return {
-            "category": category,
-            "trends": []
-        }
-    
-    # Format trends
-    trends = []
-    for idx, item in enumerate(raw_data, 1):
-        trend = format_raw_data_as_trend(item, idx)
-        if trend:
-            trends.append(trend)
-    
-    return {
-        "category": category,
-        "trends": trends
-    }
-
-
-@router.get("/trends/archive")
-def get_archive(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
-    """Get archive of past data"""
-    
-    # Get all data grouped by week
-    # This is simplified - you'd want proper weekly grouping
-    
-    offset = (page - 1) * limit
-    
-    raw_data = db.query(RawData).order_by(
-        RawData.collected_at.desc()
-    ).offset(offset).limit(limit).all()
-    
-    archives = []
-    for item in raw_data:
-        archives.append({
-            "id": item.id,
-            "title": item.content[:100],
-            "source": item.source,
-            "collected_at": item.collected_at.isoformat()
-        })
-    
-    return {
-        "page": page,
-        "total_pages": 1,
-        "archives": archives
-    }
-
-
-@router.get("/trends/archive/{week_start}")
-def get_archive_week(week_start: str, db: Session = Depends(get_db)):
-    """Get trends for a specific week"""
-    
-    # Parse week_start
-    try:
-        start_date = datetime.strptime(week_start, "%Y-%m-%d")
-        end_date = start_date + timedelta(days=7)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-    
-    # Query data from that week
-    raw_data = db.query(RawData).filter(
-        RawData.collected_at >= start_date,
-        RawData.collected_at < end_date
-    ).limit(20).all()
-    
-    trends = []
-    for idx, item in enumerate(raw_data, 1):
-        trend = format_raw_data_as_trend(item, idx)
-        if trend:
-            trends.append(trend)
-    
-    return {
-        "week_start": week_start,
-        "week_end": end_date.strftime("%Y-%m-%d"),
-        "trend_count": len(trends),
-        "trends": trends
-    }

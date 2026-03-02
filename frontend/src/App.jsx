@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useAuth } from "./hooks/useAuth"; // ← Import the hook
+import { useAuth } from "./hooks/useAuth";
 import ProtectedRoute from "./ProtectedRoute";
 import Subscribe from "./Subscribe";
 import AdminCreateTrend from "./pages/adminPage";
@@ -15,9 +15,7 @@ import TrendWeekly from "./pages/trendWeekly";
 import Archive from "./pages/archive";
 import SubscribeSuccess from "./subscribeSuccess";
 
-
 function App() {
-  // Use the custom hook
   const {
     user,
     loading,
@@ -28,25 +26,19 @@ function App() {
   } = useAuth();
 
   const [showSignIn, setShowSignIn] = useState(false);
-  const [dismissedSignIn, setDismissedSignIn] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showCreateAccount, setShowCreateAccount] = useState(false);
-  console.log("this is the user", user);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigate = useNavigate();
 
   const handleProtectedNav = (path) => {
-    if (!user && !dismissedSignIn) {
+    if (!user) {
       setShowSignIn(true);
       return;
     }
-
-    if (!user?.isSubscribed) {
-      navigate("/subscribe");
-      return;
-    }
-
+    setMobileMenuOpen(false);
     navigate(path);
   };
 
@@ -57,52 +49,94 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <div className="header-nav">
+        <h1 className="header-title" onClick={() => navigate("/")}>
+          Tap In
+        </h1>
+
+        <button
+          className="hamburger-btn"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav className={`header-nav ${mobileMenuOpen ? "mobile-open" : ""}`}>
           <button
             className="link-btn"
-            onClick={() => handleProtectedNav("/archive")}
+            onClick={() => {
+              handleProtectedNav("/archive");
+              setMobileMenuOpen(false);
+            }}
           >
             Archive
           </button>
 
           <button
             className="link-btn"
-            onClick={() => handleProtectedNav("/weekly")}
+            onClick={() => {
+              handleProtectedNav("/weekly");
+              setMobileMenuOpen(false);
+            }}
           >
             Trend Weekly
           </button>
-        </div>
 
-        <h1 className="header-title">Tap In</h1>
-
-        <nav className="header-nav">
-          <button className="link-btn" onClick={() => setShowAbout(true)}>
+          <button
+            className="link-btn"
+            onClick={() => {
+              setShowAbout(true);
+              setMobileMenuOpen(false);
+            }}
+          >
             About
           </button>
-          <button className="link-btn" onClick={() => setShowContact(true)}>
+
+          <button
+            className="link-btn"
+            onClick={() => {
+              setShowContact(true);
+              setMobileMenuOpen(false);
+            }}
+          >
             Contact Us
           </button>
-          {/* Admin button */}
+
           {user?.isAdmin && (
             <button
               className="link-btn"
-              onClick={() => navigate("/admin")}
+              onClick={() => {
+                navigate("/admin");
+                setMobileMenuOpen(false);
+              }}
             >
               Admin
             </button>
           )}
 
-
-          {/* Conditional rendering */}
           {user ? (
             <>
               <span className="user-email">{user.email}</span>
-              <button className="link-btn" onClick={handleLogout}>
+              <button
+                className="link-btn"
+                onClick={() => {
+                  handleLogout();
+                  setMobileMenuOpen(false);
+                }}
+              >
                 Sign Out
               </button>
             </>
           ) : (
-            <button className="link-btn" onClick={() => setShowSignIn(true)}>
+            <button
+              className="link-btn"
+              onClick={() => {
+                setShowSignIn(true);
+                setMobileMenuOpen(false);
+              }}
+            >
               Sign In
             </button>
           )}
@@ -153,14 +187,13 @@ function App() {
         <Route path="/SubscriveSuccess" element={<SubscribeSuccess />} />
 
         <Route
-            path="/admin"
-            element={
-              <AdminProtectedRoute user={user}>
-                <AdminCreateTrend />
-              </AdminProtectedRoute>
-            }
+          path="/admin"
+          element={
+            <AdminProtectedRoute user={user}>
+              <AdminCreateTrend />
+            </AdminProtectedRoute>
+          }
         />
-
       </Routes>
 
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
@@ -169,7 +202,6 @@ function App() {
         <SignInModal
           onClose={() => {
             setShowSignIn(false);
-            setDismissedSignIn(true);
           }}
           onGoogleSignIn={async () => {
             await handleGoogleSignIn();

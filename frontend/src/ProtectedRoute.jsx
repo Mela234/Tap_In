@@ -1,13 +1,14 @@
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function ProtectedRoute({ user, onRequireAuth, children }) {
-  if (!user) {
-    onRequireAuth();
-    return null;
-  }
+  useEffect(() => {
+    if (!user) {
+      onRequireAuth();
+    }
+  }, [user, onRequireAuth]);
 
-  if (!user.isSubscribed) {
-    return <Navigate to="/subscribe" replace />;
+  if (!user) {
+    return null;
   }
 
   return children;

@@ -17,18 +17,42 @@ export function useAuth() {
   // Listen for auth changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userDocRef = doc(db, "users", firebaseUser.uid);
-        const userDoc = await getDoc(userDocRef);
+      console.log(
+        "🔥 Firebase auth state:",
+        firebaseUser?.email || "not logged in",
+      );
 
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          name: firebaseUser.displayName,
-          isSubscribed: userDoc.exists() ? userDoc.data().isSubscribed : false,
-          isAdmin: userDoc.exists() ? userDoc.data().isAdmin : false,
-        });
+      if (firebaseUser) {
+        try {
+          const userDocRef = doc(db, "users", firebaseUser.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          console.log("📄 Firestore doc exists:", userDoc.exists());
+          console.log("📄 Firestore data:", userDoc.data());
+
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            name: firebaseUser.displayName,
+            isSubscribed: userDoc.exists()
+              ? userDoc.data().isSubscribed
+              : false,
+            isAdmin: userDoc.exists() ? userDoc.data().isAdmin : false,
+          });
+        } catch (error) {
+          console.error("❌ Firestore error in auth listener:", error);
+
+          // Still set user from Firebase auth even if Firestore fails
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            name: firebaseUser.displayName,
+            isSubscribed: false,
+            isAdmin: false,
+          });
+        }
       } else {
+        console.log("👤 No user logged in");
         setUser(null);
       }
       setLoading(false);
@@ -46,7 +70,9 @@ export function useAuth() {
       const userDocRef = doc(db, "users", result.user.uid);
       const userDoc = await getDoc(userDocRef);
 
+      // First time user - create Firestore document
       if (!userDoc.exists()) {
+        console.log("🆕 New Google user - creating Firestore document");
         await setDoc(userDocRef, {
           uid: result.user.uid,
           email: result.user.email,
@@ -56,15 +82,21 @@ export function useAuth() {
         });
       }
 
+      // Fetch updated doc after potential creation
+      const updatedDoc = await getDoc(userDocRef);
+      console.log("✅ Google sign in - user data:", updatedDoc.data());
+
       setUser({
         uid: result.user.uid,
         email: result.user.email,
         name: result.user.displayName,
-        isSubscribed: userDoc.exists() ? userDoc.data().isSubscribed : false,
-        isAdmin: userDoc.exists() ? userDoc.data().isAdmin : false,
+        isSubscribed: updatedDoc.exists()
+          ? updatedDoc.data().isSubscribed
+          : false,
+        isAdmin: updatedDoc.exists() ? updatedDoc.data().isAdmin : false,
       });
     } catch (error) {
-      console.error("Google sign-in error:", error);
+      console.error("❌ Google sign-in error:", error);
       throw error;
     }
   };
@@ -77,6 +109,8 @@ export function useAuth() {
       const userDocRef = doc(db, "users", result.user.uid);
       const userDoc = await getDoc(userDocRef);
 
+      console.log("✅ Email sign in - user data:", userDoc.data());
+
       setUser({
         uid: result.user.uid,
         email: result.user.email,
@@ -85,7 +119,7 @@ export function useAuth() {
         isAdmin: userDoc.exists() ? userDoc.data().isAdmin : false,
       });
     } catch (error) {
-      console.error("Email sign-in error:", error);
+      console.error("❌ Email sign-in error:", error);
       throw error;
     }
   };
@@ -96,7 +130,7 @@ export function useAuth() {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
 
       const newUser = {
@@ -107,10 +141,13 @@ export function useAuth() {
         createdAt: new Date(),
       };
 
+      console.log("🆕 New email user - creating Firestore document");
       await setDoc(doc(db, "users", newUser.uid), newUser);
+
+      console.log("✅ Email sign up - user created:", newUser);
       setUser(newUser);
     } catch (error) {
-      console.error("Sign-up error:", error);
+      console.error("❌ Sign-up error:", error);
       throw error;
     }
   };
@@ -119,9 +156,10 @@ export function useAuth() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      console.log("👋 User logged out");
       setUser(null);
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("❌ Logout error:", error);
       throw error;
     }
   };
