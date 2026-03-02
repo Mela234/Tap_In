@@ -189,3 +189,305 @@
   font-size: 1.2rem;
   color: #ff4444;
 }
+/* ═════════════════════════════════════════════════════════ */
+/* EMAIL SUBSCRIPTION MODAL STYLES */
+/* ═════════════════════════════════════════════════════════ */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, rgba(20, 50, 60, 0.95) 0%, rgba(10, 30, 40, 0.95) 100%);
+  border: 1px solid rgba(241, 132, 93, 0.3);
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.modal-header h2 {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.8rem;
+  color: white;
+  margin: 0 0 0.5rem 0;
+}
+
+.modal-header p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-family: "Patrick Hand", cursive;
+}
+
+.form-group input {
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(241, 132, 93, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: rgb(241, 132, 93);
+  background: rgba(241, 132, 93, 0.05);
+  box-shadow: 0 0 0 3px rgba(241, 132, 93, 0.1);
+}
+
+.form-group input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-benefits {
+  background: rgba(241, 132, 93, 0.1);
+  border-left: 3px solid rgb(241, 132, 93);
+  padding: 1.25rem;
+  border-radius: 8px;
+}
+
+.form-benefits p {
+  margin: 0 0 0.75rem 0;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-benefits ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.form-benefits li {
+  padding: 0.35rem 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, rgb(241, 132, 93) 0%, rgb(220, 110, 70) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1.05rem;
+  font-family: "Patrick Hand", cursive;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(241, 132, 93, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff9999;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border-left: 3px solid #ff4444;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.success-message {
+  background: rgba(34, 197, 94, 0.15);
+  color: #6ee7b7;
+  padding: 1.25rem 1rem;
+  border-radius: 8px;
+  border-left: 3px solid #22c55e;
+  text-align: center;
+  font-size: 0.95rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.form-note {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ═════════════════════════════════════════════════════════ */
+/* EMAIL SUBSCRIPTION CTA BUTTONS */
+/* ═════════════════════════════════════════════════════════ */
+
+.email-subscription-cta {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(241, 132, 93, 0.08);
+  border-radius: 16px;
+  border: 1px solid rgba(241, 132, 93, 0.2);
+}
+
+.email-subscription-cta p {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+}
+
+.email-subscribe-btn {
+  background: rgba(241, 132, 93, 0.3);
+  color: white;
+  border: 1px solid rgba(241, 132, 93, 0.5);
+  border-radius: 10px;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-family: "Patrick Hand", cursive;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+
+.email-subscribe-btn:hover {
+  background: rgba(241, 132, 93, 0.5);
+  border-color: rgb(241, 132, 93);
+  transform: translateY(-1px);
+}
+
+.alternative-cta {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.alternative-cta p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+}
+
+.email-digest-btn {
+  background: rgba(241, 132, 93, 0.15);
+  color: rgb(241, 132, 93);
+  border: 1px solid rgba(241, 132, 93, 0.4);
+  border-radius: 10px;
+  padding: 0.75rem 2rem;
+  font-size: 0.95rem;
+  font-family: "Patrick Hand", cursive;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.email-digest-btn:hover {
+  background: rgba(241, 132, 93, 0.25);
+  border-color: rgb(241, 132, 93);
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .modal-content {
+    padding: 1.75rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .paywall-card {
+    padding: 1.75rem 1.25rem;
+    margin-top: -60px;
+  }
+
+  .form-benefits {
+    padding: 1rem;
+  }
+
+  .submit-btn {
+    padding: 0.85rem;
+  }
+}
