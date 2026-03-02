@@ -45,14 +45,11 @@ function EmailSubscriptionModal({ onClose, onSubscribe }) {
     setError("");
 
     try {
-      const res = await fetch(
-        "http://127.0.0.1:8000/api/email/subscribe",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, subscribe: true }),
-        }
-      );
+      const res = await fetch("http://127.0.0.1:8000/api/email/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, subscribe: true }),
+      });
 
       if (!res.ok) {
         const err = await res.json();
@@ -74,17 +71,27 @@ function EmailSubscriptionModal({ onClose, onSubscribe }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content email-subscription-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
-        
+      <div
+        className="modal-content email-subscription-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className="modal-close" onClick={onClose}>
+          ✕
+        </button>
+
         <div className="modal-header">
           <h2>📧 Get Weekly Trends</h2>
-          <p>Receive our curated trends digest every 2 weeks, delivered straight to your inbox</p>
+          <p>
+            Receive our curated trends digest every 2 weeks, delivered straight
+            to your inbox
+          </p>
         </div>
 
         {success ? (
           <div className="success-message">
-            <p>✅ Successfully subscribed! Check your email for confirmation.</p>
+            <p>
+              ✅ Successfully subscribed! Check your email for confirmation.
+            </p>
           </div>
         ) : (
           <form onSubmit={handleEmailSubscribe} className="email-form">
@@ -137,7 +144,7 @@ function Subscribe({ trends = [], user }) {
   const handleSubscribe = async () => {
     try {
       const res = await fetch(
-        "http://127.0.0.1:4242/api/create-checkout-session",
+        "http://127.0.0.1:8000/api/create-checkout-session",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
