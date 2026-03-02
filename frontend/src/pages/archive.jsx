@@ -14,7 +14,7 @@ function Archive() {
       try {
         setLoading(true);
         const data = await getArchive();
-        setTrends(data.archives);
+        setTrends(data.trends);
       } catch (err) {
         console.error("Error fetching archive:", err);
         setError("Failed to load archive");
