@@ -15,6 +15,6 @@ class User(Base):
     last_email_sent = Column(DateTime, nullable=True)  # Track when last email was sent
     created_at = Column(DateTime, default=datetime.utcnow)
     is_admin = Column(Boolean, default=False)
-
+    
     def __repr__(self):
         return f"<User {self.email}>"

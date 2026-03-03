@@ -1,16 +1,15 @@
 """
-Email scheduler for sending bi-weekly digest emails to subscribers
-Sends emails every 2 weeks on Saturday/Sunday
+Email scheduler for sending weekly digest emails to subscribers
+Sends emails every week on Friday
 """
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
-from app.models.user import User
 from app.models.raw_data import RawData
 from app.services.email_service import get_email_service
-
+from firebase_admin import firestore\
 
 scheduler = BackgroundScheduler()
 
@@ -18,7 +17,6 @@ scheduler = BackgroundScheduler()
 def get_weekly_trends_data(db: Session):
     """Get this week's trending data from the database"""
     from app.api.routes.trends import format_raw_data_as_trend
-    from datetime import timedelta
     
     # Get data from the last 7 days
     raw_data = db.query(RawData).order_by(
@@ -49,29 +47,48 @@ def get_weekly_trends_data(db: Session):
     }
 
 
-scheduler = BackgroundScheduler()
+def get_email_subscribers():
+    """Get all users who are subscribed to emails from Firestore"""
+    try:
+        db = firestore.client()
+        
+        # Query Firestore for subscribed users
+        users_ref = db.collection('users')
+        
+        # Get users where isSubscribed = true
+        subscribers = users_ref.where('isSubscribed', '==', True).stream()
+        
+        # Filter for users who want email notifications (default True if not set)
+        email_list = []
+        for user_doc in subscribers:
+            user_data = user_doc.to_dict()
+            # Check if email_notifications is enabled (default to True if not set)
+            if user_data.get('email_notifications', True):
+                email_list.append(user_data.get('email'))
+        
+        return email_list
+    except Exception as e:
+        print(f"❌ Error fetching email subscribers from Firestore: {e}")
+        return []
 
 
 def send_weekly_digest_emails():
-    """Send bi-weekly digest emails to all subscribed users"""
-    db = SessionLocal()
+    """Send weekly digest emails to all subscribed users"""
+    sql_db = SessionLocal()
     try:
         print(f"\n📧 Starting weekly digest email send at {datetime.utcnow().isoformat()}")
         
-        # Get all users subscribed to email digest
-        email_subscribers = db.query(User).filter(
-            User.is_email_subscriber == True,
-            User.is_active == True
-        ).all()
+        # Get email subscribers from Firestore
+        recipient_emails = get_email_subscribers()
         
-        if not email_subscribers:
+        if not recipient_emails:
             print("ℹ️  No email subscribers found")
             return
         
-        print(f"📨 Found {len(email_subscribers)} email subscribers")
+        print(f"📨 Found {len(recipient_emails)} email subscribers")
         
-        # Get this week's trends
-        trends_data = get_weekly_trends_data(db)
+        # Get this week's trends from SQL database
+        trends_data = get_weekly_trends_data(sql_db)
         trends = trends_data.get("trends", [])
         
         if not trends:
@@ -80,7 +97,6 @@ def send_weekly_digest_emails():
         
         # Send emails
         email_service = get_email_service()
-        recipient_emails = [user.email for user in email_subscribers]
         
         # Generate email content
         html_content = email_service.generate_weekly_digest_email(trends, None)
@@ -92,31 +108,32 @@ def send_weekly_digest_emails():
             html_content
         )
         
-        # Update last_email_sent for successful sends
-        sent_emails = results["sent"]
-        if sent_emails:
-            db.query(User).filter(User.email.in_(sent_emails)).update(
-                {User.last_email_sent: datetime.utcnow()},
-                synchronize_session=False
-            )
-            db.commit()
-            print(f"✅ Successfully sent emails to {len(sent_emails)} subscribers")
+        # Update last_email_sent in Firestore for successful sends
+        if results["sent"]:
+            firestore_db = firestore.client()
+            for email in results["sent"]:
+                # Find user by email and update last_email_sent
+                users_ref = firestore_db.collection('users').where('email', '==', email).stream()
+                for user_doc in users_ref:
+                    firestore_db.collection('users').document(user_doc.id).update({
+                        'last_email_sent': datetime.utcnow()
+                    })
+            
+            print(f"✅ Successfully sent emails to {len(results['sent'])} subscribers")
         
         if results["failed"]:
             print(f"❌ Failed to send emails to {len(results['failed'])} subscribers: {results['failed']}")
         
     except Exception as e:
         print(f"❌ Error in send_weekly_digest_emails: {str(e)}")
-        db.rollback()
     finally:
-        db.close()
+        sql_db.close()
 
 
 def start_email_scheduler():
     """Start the background scheduler for email tasks"""
     try:
-        # Schedule to run every 2 weeks on Saturday at 9 AM UTC
-        # Using cron expression: 0 9 * * 5 (Friday at 9 AM to account for timezones, sends Saturday morning)
+        # Schedule to run every Friday at 9 AM UTC
         scheduler.add_job(
             send_weekly_digest_emails,
             CronTrigger(hour=9, minute=0, day_of_week='fri'),
@@ -148,12 +165,12 @@ def stop_email_scheduler():
 # For testing purposes
 def test_send_digest_email(recipient_email: str):
     """Test function to send a digest email immediately"""
-    db = SessionLocal()
+    sql_db = SessionLocal()
     try:
         print(f"🧪 Testing email send to {recipient_email}")
         
         # Get trends
-        trends_data = get_weekly_trends_data(db)
+        trends_data = get_weekly_trends_data(sql_db)
         trends = trends_data.get("trends", [])
         
         # Send email
@@ -172,4 +189,4 @@ def test_send_digest_email(recipient_email: str):
         
         return success
     finally:
-        db.close()
+        sql_db.close()

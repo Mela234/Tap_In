@@ -4,8 +4,8 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr
 from app.core.database import SessionLocal
 from app.models.raw_data import RawData
-from app.models.user import User
 from datetime import datetime, timedelta
+from firebase_admin import auth, firestore
 
 router = APIRouter()
 
@@ -187,7 +187,7 @@ def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
         return {
             "id": trend_id,
             "type": "post",
-            "title": raw_data.content[:100],  # Post title
+            "title": raw_data.content[:100],
             "category": "Reddit",
             "description": raw_data.content,
             "relevance_score": 0.80,
@@ -259,171 +259,44 @@ def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
         }
 
 
-@router.get("/trends/{trend_id}")
-def get_trend_by_id(trend_id: int, db: Session = Depends(get_db)):
-    """Get detailed information about a specific trend"""
-    
-    # Get raw data by ID
-    raw_data = db.query(RawData).filter(RawData.id == trend_id).first()
-    
-    if not raw_data:
-        raise HTTPException(status_code=404, detail="Trend not found")
-    
-    trend = format_raw_data_as_trend(raw_data, trend_id)
-    return trend
-
-
-@router.get("/trends/category/{category}")
-def get_trends_by_category(category: str, db: Session = Depends(get_db)):
-    """Get trends filtered by category"""
-    
-    # Map category to source
-    source_map = {
-        "slang": "urban_dictionary",
-        "reddit": "reddit",
-        "youtube": "youtube",
-        "news": ["buzzfeed", "complex", "thecut", "refinery29"],
-        "trending": "google_trends"
-    }
-    
-    source = source_map.get(category.lower())
-    
-    if not source:
-        raise HTTPException(status_code=404, detail=f"Unknown category: {category}")
-    
-    # Query database
-    if isinstance(source, list):
-        raw_data = db.query(RawData).filter(RawData.source.in_(source)).limit(20).all()
-    else:
-        raw_data = db.query(RawData).filter(RawData.source == source).limit(20).all()
-    
-    if not raw_data:
-        return {
-            "category": category,
-            "trends": []
-        }
-    
-    # Format trends
-    trends = []
-    for idx, item in enumerate(raw_data, 1):
-        trend = format_raw_data_as_trend(item, idx)
-        if trend:
-            trends.append(trend)
-    
-    return {
-        "category": category,
-        "trends": trends
-    }
-
-
-@router.get("/trends/archive")
-def get_archive(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
-    """Get archive of past data"""
-    
-    # Get all data grouped by week
-    # This is simplified - you'd want proper weekly grouping
-    
-    offset = (page - 1) * limit
-    
-    raw_data = db.query(RawData).order_by(
-        RawData.collected_at.desc()
-    ).offset(offset).limit(limit).all()
-    
-    archives = []
-    for item in raw_data:
-        archives.append({
-            "id": item.id,
-            "title": item.content[:100],
-            "source": item.source,
-            "collected_at": item.collected_at.isoformat()
-        })
-    
-    return {
-        "page": page,
-        "total_pages": 1,
-        "archives": archives
-    }
-
-
-@router.get("/trends/archive/{week_start}")
-def get_archive_week(week_start: str, db: Session = Depends(get_db)):
-    """Get trends for a specific week"""
-    
-    # Parse week_start
-    try:
-        start_date = datetime.strptime(week_start, "%Y-%m-%d")
-        end_date = start_date + timedelta(days=7)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-    
-    # Query data from that week
-    raw_data = db.query(RawData).filter(
-        RawData.collected_at >= start_date,
-        RawData.collected_at < end_date
-    ).limit(20).all()
-    
-    trends = []
-    for idx, item in enumerate(raw_data, 1):
-        trend = format_raw_data_as_trend(item, idx)
-        if trend:
-            trends.append(trend)
-    
-    return {
-        "week_start": week_start,
-        "week_end": end_date.strftime("%Y-%m-%d"),
-        "trend_count": len(trends),
-        "trends": trends
-    }
-
-
-# ============ EMAIL SUBSCRIPTION ENDPOINTS ============
+# ============ EMAIL SUBSCRIPTION ENDPOINTS (Using Firestore) ============
 
 class EmailSubscriptionRequest(BaseModel):
     email: str
     subscribe: bool
 
 
-class EmailSubscriptionStatus(BaseModel):
-    email: str
-    is_email_subscriber: bool
-    last_email_sent: Optional[str] = None
-
-
 @router.post("/email/subscribe")
-def subscribe_to_email_digest(
-    request: EmailSubscriptionRequest,
-    db: Session = Depends(get_db)
-):
-    """Subscribe or unsubscribe from bi-weekly email digest"""
+def subscribe_to_email_digest(request: EmailSubscriptionRequest):
+    """Subscribe or unsubscribe from weekly email digest (Firestore)"""
     try:
-        # Check if user exists
-        user = db.query(User).filter(User.email == request.email).first()
+        firestore_db = firestore.client()
         
-        if not user:
-            # Create new user if doesn't exist (for email-only subscribers)
-            user = User(
-                email=request.email,
-                hashed_password="",  # Placeholder for email-only subscribers
-                is_active=True,
-                is_email_subscriber=request.subscribe
-            )
-            db.add(user)
-        else:
+        # Find user by email
+        users_ref = firestore_db.collection('users').where('email', '==', request.email).stream()
+        
+        user_found = False
+        for user_doc in users_ref:
             # Update existing user
-            user.is_email_subscriber = request.subscribe
+            firestore_db.collection('users').document(user_doc.id).update({
+                'email_notifications': request.subscribe
+            })
+            user_found = True
+            break
         
-        db.commit()
-        db.refresh(user)
+        if not user_found:
+            raise HTTPException(status_code=404, detail="User not found. Please sign up first.")
         
         status = "subscribed" if request.subscribe else "unsubscribed"
         return {
             "success": True,
             "message": f"Successfully {status} from email digest",
-            "email": user.email,
-            "is_email_subscriber": user.is_email_subscriber
+            "email": request.email,
+            "email_notifications": request.subscribe
         }
+    except HTTPException:
+        raise
     except Exception as e:
-        db.rollback()
         raise HTTPException(
             status_code=500,
             detail=f"Failed to update subscription: {str(e)}"
@@ -431,22 +304,27 @@ def subscribe_to_email_digest(
 
 
 @router.get("/email/subscription-status/{email}")
-def get_subscription_status(email: str, db: Session = Depends(get_db)):
-    """Get email subscription status for a user"""
+def get_subscription_status(email: str):
+    """Get email subscription status for a user (Firestore)"""
     try:
-        user = db.query(User).filter(User.email == email).first()
+        firestore_db = firestore.client()
         
-        if not user:
+        # Find user by email
+        users_ref = firestore_db.collection('users').where('email', '==', email).stream()
+        
+        for user_doc in users_ref:
+            user_data = user_doc.to_dict()
             return {
                 "email": email,
-                "is_email_subscriber": False,
-                "last_email_sent": None
+                "email_notifications": user_data.get('email_notifications', True),
+                "last_email_sent": user_data.get('last_email_sent').isoformat() if user_data.get('last_email_sent') else None
             }
         
+        # User not found
         return {
-            "email": user.email,
-            "is_email_subscriber": user.is_email_subscriber,
-            "last_email_sent": user.last_email_sent.isoformat() if user.last_email_sent else None
+            "email": email,
+            "email_notifications": False,
+            "last_email_sent": None
         }
     except Exception as e:
         raise HTTPException(
@@ -456,7 +334,7 @@ def get_subscription_status(email: str, db: Session = Depends(get_db)):
 
 
 @router.post("/email/test-send/{email}")
-def test_send_digest_email(email: str, db: Session = Depends(get_db)):
+def test_send_digest_email(email: str):
     """Test endpoint to send a digest email immediately (for testing purposes)"""
     try:
         from app.tasks.email_scheduler import test_send_digest_email as send_test
