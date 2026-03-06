@@ -9,7 +9,6 @@ from firebase_admin import auth, firestore
 
 router = APIRouter()
 
-# Dependency to get database session
 def get_db():
     db = SessionLocal()
     try:
@@ -33,11 +32,10 @@ def get_weekly_trends(db: Session = Depends(get_db)):
             "trends": []
         }
     
-    # Convert raw data to trend format
     trends = []
     trend_id = 1
     
-    for item in raw_data[:20]:  # Return top 20
+    for item in raw_data[:20]:
         trend = format_raw_data_as_trend(item, trend_id)
         if trend:
             trends.append(trend)
@@ -50,7 +48,6 @@ def get_weekly_trends(db: Session = Depends(get_db)):
     }
 
 
-# ARCHIVE ROUTES - MUST COME BEFORE /{trend_id}
 @router.get("/trends/archive")
 def get_archive(db: Session = Depends(get_db), page: int = 1, limit: int = 10):
     """Get archive of past data"""
@@ -61,7 +58,6 @@ def get_archive(db: Session = Depends(get_db), page: int = 1, limit: int = 10):
         RawData.collected_at.desc()
     ).offset(offset).limit(limit).all()
     
-    # Format as trends (same as weekly)
     trends = []
     for idx, item in enumerate(raw_data, start=offset + 1):
         trend = format_raw_data_as_trend(item, idx)
@@ -79,14 +75,12 @@ def get_archive(db: Session = Depends(get_db), page: int = 1, limit: int = 10):
 def get_archive_week(week_start: str, db: Session = Depends(get_db)):
     """Get trends for a specific week"""
     
-    # Parse week_start
     try:
         start_date = datetime.strptime(week_start, "%Y-%m-%d")
         end_date = start_date + timedelta(days=7)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
     
-    # Query data from that week
     raw_data = db.query(RawData).filter(
         RawData.collected_at >= start_date,
         RawData.collected_at < end_date
@@ -110,7 +104,6 @@ def get_archive_week(week_start: str, db: Session = Depends(get_db)):
 def get_trends_by_category(category: str, db: Session = Depends(get_db)):
     """Get trends filtered by category"""
     
-    # Map category to source
     source_map = {
         "slang": "urban_dictionary",
         "reddit": "reddit",
@@ -124,7 +117,6 @@ def get_trends_by_category(category: str, db: Session = Depends(get_db)):
     if not source:
         raise HTTPException(status_code=404, detail=f"Unknown category: {category}")
     
-    # Query database
     if isinstance(source, list):
         raw_data = db.query(RawData).filter(RawData.source.in_(source)).limit(20).all()
     else:
@@ -136,7 +128,6 @@ def get_trends_by_category(category: str, db: Session = Depends(get_db)):
             "trends": []
         }
     
-    # Format trends
     trends = []
     for idx, item in enumerate(raw_data, 1):
         trend = format_raw_data_as_trend(item, idx)
@@ -149,12 +140,10 @@ def get_trends_by_category(category: str, db: Session = Depends(get_db)):
     }
 
 
-# DYNAMIC ROUTE - MUST COME LAST
 @router.get("/trends/{trend_id}")
 def get_trend_by_id(trend_id: int, db: Session = Depends(get_db)):
     """Get detailed information about a specific trend"""
     
-    # Get raw data by ID
     raw_data = db.query(RawData).filter(RawData.id == trend_id).first()
     
     if not raw_data:
@@ -167,7 +156,6 @@ def get_trend_by_id(trend_id: int, db: Session = Depends(get_db)):
 def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
     """Convert raw_data to trend format"""
     
-    # Determine trend type based on source
     if raw_data.source == "urban_dictionary":
         return {
             "id": trend_id,
@@ -219,10 +207,14 @@ def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
         }
     
     elif raw_data.source in ["buzzfeed", "complex", "thecut", "refinery29"]:
+        title = raw_data.content[:80]
+        if len(raw_data.content) > 80:
+            title += "..."
+        
         return {
             "id": trend_id,
             "type": "article",
-            "title": raw_data.content[:100],
+            "title": title,
             "category": "News",
             "description": raw_data.content,
             "relevance_score": 0.75,
@@ -245,7 +237,6 @@ def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
         }
     
     else:
-        # Generic format for other sources
         return {
             "id": trend_id,
             "type": "general",
@@ -259,8 +250,6 @@ def format_raw_data_as_trend(raw_data: RawData, trend_id: int):
         }
 
 
-# ============ EMAIL SUBSCRIPTION ENDPOINTS (Using Firestore) ============
-
 class EmailSubscriptionRequest(BaseModel):
     email: str
     subscribe: bool
@@ -272,12 +261,10 @@ def subscribe_to_email_digest(request: EmailSubscriptionRequest):
     try:
         firestore_db = firestore.client()
         
-        # Find user by email
         users_ref = firestore_db.collection('users').where('email', '==', request.email).stream()
         
         user_found = False
         for user_doc in users_ref:
-            # Update existing user
             firestore_db.collection('users').document(user_doc.id).update({
                 'email_notifications': request.subscribe
             })
@@ -309,7 +296,6 @@ def get_subscription_status(email: str):
     try:
         firestore_db = firestore.client()
         
-        # Find user by email
         users_ref = firestore_db.collection('users').where('email', '==', email).stream()
         
         for user_doc in users_ref:
@@ -320,7 +306,6 @@ def get_subscription_status(email: str):
                 "last_email_sent": user_data.get('last_email_sent').isoformat() if user_data.get('last_email_sent') else None
             }
         
-        # User not found
         return {
             "email": email,
             "email_notifications": False,

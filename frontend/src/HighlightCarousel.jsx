@@ -7,8 +7,8 @@ function HighlightCarousel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [index, setIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  // Fetch trends on component mount
   useEffect(() => {
     const fetchTrends = async () => {
       try {
@@ -27,13 +27,14 @@ function HighlightCarousel() {
   }, []);
 
   useEffect(() => {
-    if (highlights.length === 0) return;
+    if (highlights.length === 0 || isPaused) return;
 
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % highlights.length);
     }, 4000);
+
     return () => clearInterval(interval);
-  }, [highlights.length]);
+  }, [highlights.length, isPaused]);
 
   if (loading) {
     return (
@@ -58,7 +59,11 @@ function HighlightCarousel() {
   }
 
   return (
-    <section className="highlights-window">
+    <section
+      className="highlights-window"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div className="highlights-header">
         <h2>This Week's Highlights</h2>
       </div>
