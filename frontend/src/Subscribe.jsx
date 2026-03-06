@@ -1,5 +1,10 @@
 import "./Subscribe.css";
 import { useState, useEffect } from "react";
+import {
+  subscribeToEmail,
+  getEmailSubscriptionStatus,
+  createCheckoutSession,
+} from "./services/api";
 
 const FREE_TRENDS_COUNT = 3;
 
@@ -45,26 +50,19 @@ function EmailSubscriptionModal({ onClose, onSubscribe }) {
     setError("");
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/email/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, subscribe: true }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || "Failed to subscribe");
-      }
-
+      await subscribeToEmail(email);
       setSuccess(true);
       setEmail("");
+      onSubscribe(); // Refresh status
       onSubscribe(); // Refresh status
       setTimeout(() => {
         onClose();
       }, 2000);
     } catch (err) {
       console.error("Email subscription failed:", err);
-      setError(err.message || "Failed to subscribe to email digest");
+      setError(
+        err.response?.data?.detail || "Failed to subscribe to email digest",
+      );
     } finally {
       setLoading(false);
     }
@@ -83,8 +81,8 @@ function EmailSubscriptionModal({ onClose, onSubscribe }) {
         <div className="modal-header">
           <h2>📧 Get Weekly Trends</h2>
           <p>
-            Receive our curated trends digest every 2 weeks, delivered straight
-            to your inbox
+            Receive our curated trends digest every week, delivered straight to
+            your inbox
           </p>
         </div>
 
@@ -153,10 +151,7 @@ function Subscribe({ trends = [], user }) {
       }
 
       try {
-        const res = await fetch(
-          `http://127.0.0.1:8000/api/email/subscription-status/${user.email}`,
-        );
-        const data = await res.json();
+        const data = await getEmailSubscriptionStatus(user.email);
         setEmailSubscribed(data.email_notifications || false);
       } catch (err) {
         console.error("Failed to check email subscription status:", err);
@@ -170,21 +165,7 @@ function Subscribe({ trends = [], user }) {
 
   const handleSubscribe = async () => {
     try {
-      const res = await fetch(
-        "http://127.0.0.1:8000/api/create-checkout-session",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uid: user?.uid }),
-        },
-      );
-
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err);
-      }
-
-      const data = await res.json();
+      const data = await createCheckoutSession(user?.uid);
 
       if (!data.url) {
         throw new Error("No checkout URL returned");
@@ -201,10 +182,7 @@ function Subscribe({ trends = [], user }) {
     if (!user?.email) return;
 
     try {
-      const res = await fetch(
-        `http://127.0.0.1:8000/api/email/subscription-status/${user.email}`,
-      );
-      const data = await res.json();
+      const data = await getEmailSubscriptionStatus(user.email);
       setEmailSubscribed(data.email_notifications || false);
     } catch (err) {
       console.error("Failed to refresh email subscription status:", err);
@@ -220,6 +198,33 @@ function Subscribe({ trends = [], user }) {
             <TrendCard key={trend.id} trend={trend} />
           ))}
         </div>
+
+        {/* Show email CTA only if not subscribed to emails */}
+        {!checkingEmail && !emailSubscribed && (
+          <div className="email-subscription-cta">
+            <p>Want weekly digest emails too?</p>
+            <button
+              className="email-subscribe-btn"
+              onClick={() => setShowEmailModal(true)}
+            >
+              📧 Enable Email Digest
+            </button>
+          </div>
+        )}
+
+        {/* Show confirmation if already subscribed to emails */}
+        {!checkingEmail && emailSubscribed && (
+          <div className="email-subscribed-notice">
+            <p>✅ You're subscribed to weekly emails!</p>
+          </div>
+        )}
+
+        {showEmailModal && (
+          <EmailSubscriptionModal
+            onClose={() => setShowEmailModal(false)}
+            onSubscribe={refreshEmailStatus}
+          />
+        )}
       </div>
     );
   }
@@ -258,6 +263,25 @@ function Subscribe({ trends = [], user }) {
               Unlock All Trends
             </button>
 
+            {/* Only show email CTA if NOT already subscribed to emails */}
+            {!checkingEmail && !emailSubscribed && (
+              <div className="alternative-cta">
+                <p>Or get a free weekly digest:</p>
+                <button
+                  className="email-digest-btn"
+                  onClick={() => setShowEmailModal(true)}
+                >
+                  📧 Free Email Digest
+                </button>
+              </div>
+            )}
+
+            {/* Show confirmation if already subscribed to emails */}
+            {!checkingEmail && emailSubscribed && (
+              <div className="email-subscribed-notice">
+                <p>✅ You're subscribed to weekly emails!</p>
+              </div>
+            )}
             {/* Only show email CTA if NOT already subscribed to emails */}
             {!checkingEmail && !emailSubscribed && (
               <div className="alternative-cta">
