@@ -1,5 +1,5 @@
 import "./Subscribe.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const FREE_TRENDS_COUNT = 3;
 
@@ -58,6 +58,7 @@ function EmailSubscriptionModal({ onClose, onSubscribe }) {
 
       setSuccess(true);
       setEmail("");
+      onSubscribe(); // Refresh status
       setTimeout(() => {
         onClose();
       }, 2000);
@@ -140,6 +141,32 @@ function EmailSubscriptionModal({ onClose, onSubscribe }) {
 
 function Subscribe({ trends = [], user }) {
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailSubscribed, setEmailSubscribed] = useState(false);
+  const [checkingEmail, setCheckingEmail] = useState(true);
+
+  // Check email subscription status
+  useEffect(() => {
+    const checkEmailStatus = async () => {
+      if (!user?.email) {
+        setCheckingEmail(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/email/subscription-status/${user.email}`,
+        );
+        const data = await res.json();
+        setEmailSubscribed(data.email_notifications || false);
+      } catch (err) {
+        console.error("Failed to check email subscription status:", err);
+      } finally {
+        setCheckingEmail(false);
+      }
+    };
+
+    checkEmailStatus();
+  }, [user?.email]);
 
   const handleSubscribe = async () => {
     try {
@@ -170,7 +197,21 @@ function Subscribe({ trends = [], user }) {
     }
   };
 
-  // ── Subscribed: show everything ──
+  const refreshEmailStatus = async () => {
+    if (!user?.email) return;
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/email/subscription-status/${user.email}`,
+      );
+      const data = await res.json();
+      setEmailSubscribed(data.email_notifications || false);
+    } catch (err) {
+      console.error("Failed to refresh email subscription status:", err);
+    }
+  };
+
+  // ── Subscribed to paid plan: show everything ──
   if (user?.isSubscribed) {
     return (
       <div className="subscribe-page">
@@ -179,21 +220,6 @@ function Subscribe({ trends = [], user }) {
             <TrendCard key={trend.id} trend={trend} />
           ))}
         </div>
-        <div className="email-subscription-cta">
-          <p>Want weekly digest emails too?</p>
-          <button
-            className="email-subscribe-btn"
-            onClick={() => setShowEmailModal(true)}
-          >
-            📧 Enable Email Digest
-          </button>
-        </div>
-        {showEmailModal && (
-          <EmailSubscriptionModal
-            onClose={() => setShowEmailModal(false)}
-            onSubscribe={() => setShowEmailModal(false)}
-          />
-        )}
       </div>
     );
   }
@@ -232,15 +258,25 @@ function Subscribe({ trends = [], user }) {
               Unlock All Trends
             </button>
 
-            <div className="alternative-cta">
-              <p>Or get a free weekly digest:</p>
-              <button
-                className="email-digest-btn"
-                onClick={() => setShowEmailModal(true)}
-              >
-                📧 Free Email Digest
-              </button>
-            </div>
+            {/* Only show email CTA if NOT already subscribed to emails */}
+            {!checkingEmail && !emailSubscribed && (
+              <div className="alternative-cta">
+                <p>Or get a free weekly digest:</p>
+                <button
+                  className="email-digest-btn"
+                  onClick={() => setShowEmailModal(true)}
+                >
+                  📧 Free Email Digest
+                </button>
+              </div>
+            )}
+
+            {/* Show confirmation if already subscribed to emails */}
+            {!checkingEmail && emailSubscribed && (
+              <div className="email-subscribed-notice">
+                <p>✅ You're subscribed to weekly emails!</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -248,7 +284,7 @@ function Subscribe({ trends = [], user }) {
       {showEmailModal && (
         <EmailSubscriptionModal
           onClose={() => setShowEmailModal(false)}
-          onSubscribe={() => setShowEmailModal(false)}
+          onSubscribe={refreshEmailStatus}
         />
       )}
     </div>
