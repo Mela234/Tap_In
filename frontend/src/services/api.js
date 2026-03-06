@@ -43,4 +43,32 @@ export const getArchiveWeek = async (weekStart) => {
   return data;
 };
 
+// Email subscription endpoints
+export const subscribeToEmail = async (email) => {
+  const { data } = await api.post("/email/subscribe", {
+    email,
+    subscribe: true,
+  });
+  return data;
+};
+
+export const getEmailSubscriptionStatus = async (email) => {
+  const { data } = await api.get(`/email/subscription-status/${email}`);
+  return data;
+};
+
+export const unsubscribeFromEmail = async (email) => {
+  const { data } = await api.post("/email/subscribe", {
+    email,
+    subscribe: false,
+  });
+  return data;
+};
+
+// Stripe checkout
+export const createCheckoutSession = async (uid) => {
+  const { data } = await api.post("/create-checkout-session", { uid });
+  return data;
+};
+
 export { api };
