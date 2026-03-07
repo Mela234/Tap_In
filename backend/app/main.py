@@ -23,7 +23,7 @@ app = FastAPI(
 # CORS middleware (allows frontend to call API)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL
+    allow_origins=["*", "https://tapinpointo.netlify.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
