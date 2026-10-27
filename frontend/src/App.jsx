@@ -6,7 +6,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Subscribe from "./Subscribe";
 import AdminCreateTrend from "./pages/adminPage";
 import AdminProtectedRoute from "./adminProtectedRoute";
-import HighlightCarousel from "./HighlightCarousel";
+import HexagonHub from "./HexagonHub";
 import ContactModal from "./Modals/contactModal";
 import SignInModal from "./Modals/signInModal";
 import CreateAccountModal from "./Modals/createAccountModal";
@@ -147,14 +147,8 @@ function App() {
         <Route
           path="/"
           element={
-            <main className="App-body">
-              <p className="firstLine">All the trends</p>
-              <p className="secondLine">With zero scrolling</p>
-              <p className="description">
-                For parents, teachers, or anyone wanting the scoop without the
-                scroll—catch up on weekly trends here!
-              </p>
-              <HighlightCarousel />
+            <main className="App-body App-home">
+              <HexagonHub />
             </main>
           }
         />

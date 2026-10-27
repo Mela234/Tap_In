@@ -12,8 +12,8 @@
 }
 
 .trend-card {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(58, 36, 52, 0.1);
   border-radius: 16px;
   padding: 1.5rem;
   transition: transform 0.2s;
@@ -31,8 +31,8 @@
 }
 
 .trend-category {
-  background: rgba(241, 132, 93, 0.2);
-  color: rgb(241, 132, 93);
+  background: rgba(196, 139, 180, 0.2);
+  color: var(--accent);
   padding: 0.3rem 0.8rem;
   border-radius: 999px;
   font-size: 0.8rem;
@@ -41,26 +41,26 @@
 
 .trend-score {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(58, 36, 52, 0.7);
 }
 
 .trend-title {
   font-family: "Patrick Hand", cursive;
   font-size: 1.4rem;
   margin: 0 0 0.5rem 0;
-  color: white;
+  color: var(--text);
 }
 
 .trend-description {
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(58, 36, 52, 0.85);
   line-height: 1.6;
   margin: 0 0 0.5rem 0;
 }
 
 .trend-why {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(58, 36, 52, 0.6);
   font-style: italic;
   margin: 0;
 }
@@ -92,8 +92,8 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(1, 43, 43, 0.7) 40%,
-    rgba(1, 43, 43, 0.97) 100%
+    rgba(251, 246, 249, 0.75) 40%,
+    rgba(251, 246, 249, 0.97) 100%
   );
   pointer-events: none;
   border-radius: 16px;
@@ -104,14 +104,14 @@
   position: relative;
   z-index: 2;
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(241, 132, 93, 0.4);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(196, 139, 180, 0.4);
   border-radius: 20px;
   padding: 2.5rem 2rem;
   margin-top: -80px;
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(241, 132, 93, 0.15);
+    0 0 20px rgba(196, 139, 180, 0.15);
 }
 
 .lock-icon {
@@ -124,11 +124,11 @@
   font-family: "Patrick Hand", cursive;
   font-size: 1.8rem;
   margin: 0 0 1rem 0;
-  color: white;
+  color: var(--text);
 }
 
 .paywall-card p {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(58, 36, 52, 0.8);
   font-size: 1.05rem;
   max-width: 400px;
   margin: 0 auto 1rem;
@@ -138,18 +138,18 @@
 .paywall-price {
   font-family: "Patrick Hand", cursive;
   font-size: 2rem;
-  color: rgb(241, 132, 93);
+  color: var(--accent);
   margin: 0.5rem 0 0.25rem;
 }
 
 .paywall-cancel {
   font-size: 0.85rem !important;
-  color: rgba(255, 255, 255, 0.4) !important;
+  color: rgba(58, 36, 52, 0.5) !important;
   margin-bottom: 1.5rem !important;
 }
 
 .subscribe-btn {
-  background: rgb(241, 132, 93);
+  background: var(--accent);
   color: white;
   border: none;
   border-radius: 12px;
@@ -162,9 +162,9 @@
 }
 
 .subscribe-btn:hover {
-  background: rgb(220, 110, 70);
+  background: var(--accent-strong);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(241, 132, 93, 0.4);
+  box-shadow: 0 4px 15px rgba(196, 139, 180, 0.4);
   border-color: transparent;
 }
 
@@ -173,14 +173,14 @@
   font-size: 2rem;
   text-align: center;
   margin: 2rem 0 1rem;
-  color: white;
+  color: var(--text);
 }
 
 .loading {
   text-align: center;
   padding: 60px 20px;
   font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(58, 36, 52, 0.6);
 }
 
 .error {
@@ -208,8 +208,8 @@
 }
 
 .modal-content {
-  background: linear-gradient(135deg, rgba(20, 50, 60, 0.95) 0%, rgba(10, 30, 40, 0.95) 100%);
-  border: 1px solid rgba(241, 132, 93, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(246, 237, 243, 0.97) 100%);
+  border: 1px solid rgba(196, 139, 180, 0.3);
   border-radius: 24px;
   padding: 2.5rem;
   max-width: 500px;
@@ -238,12 +238,12 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(58, 36, 52, 0.6);
   transition: color 0.2s;
 }
 
 .modal-close:hover {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(58, 36, 52, 0.9);
 }
 
 .modal-header {
@@ -254,12 +254,12 @@
 .modal-header h2 {
   font-family: "Patrick Hand", cursive;
   font-size: 1.8rem;
-  color: white;
+  color: var(--text);
   margin: 0 0 0.5rem 0;
 }
 
 .modal-header p {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(58, 36, 52, 0.7);
   font-size: 0.95rem;
   margin: 0;
   line-height: 1.5;
@@ -279,30 +279,30 @@
 
 .form-group label {
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(58, 36, 52, 0.9);
   font-size: 0.9rem;
   font-family: "Patrick Hand", cursive;
 }
 
 .form-group input {
   padding: 0.85rem 1rem;
-  border: 1px solid rgba(241, 132, 93, 0.3);
+  border: 1px solid rgba(196, 139, 180, 0.3);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--text);
   font-size: 1rem;
   transition: all 0.2s;
 }
 
 .form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(58, 36, 52, 0.4);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: rgb(241, 132, 93);
-  background: rgba(241, 132, 93, 0.05);
-  box-shadow: 0 0 0 3px rgba(241, 132, 93, 0.1);
+  border-color: var(--accent);
+  background: rgba(196, 139, 180, 0.05);
+  box-shadow: 0 0 0 3px rgba(196, 139, 180, 0.1);
 }
 
 .form-group input:disabled {
@@ -311,15 +311,15 @@
 }
 
 .form-benefits {
-  background: rgba(241, 132, 93, 0.1);
-  border-left: 3px solid rgb(241, 132, 93);
+  background: rgba(196, 139, 180, 0.1);
+  border-left: 3px solid var(--accent);
   padding: 1.25rem;
   border-radius: 8px;
 }
 
 .form-benefits p {
   margin: 0 0 0.75rem 0;
-  color: white;
+  color: var(--text);
   font-weight: 600;
   font-size: 0.95rem;
 }
@@ -332,13 +332,13 @@
 
 .form-benefits li {
   padding: 0.35rem 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(58, 36, 52, 0.8);
   font-size: 0.9rem;
   line-height: 1.4;
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, rgb(241, 132, 93) 0%, rgb(220, 110, 70) 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -353,7 +353,7 @@
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(241, 132, 93, 0.4);
+  box-shadow: 0 6px 20px rgba(196, 139, 180, 0.4);
 }
 
 .submit-btn:disabled {
@@ -393,7 +393,7 @@
 
 .form-note {
   text-align: center;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(58, 36, 52, 0.5);
   font-size: 0.85rem;
   margin: 0;
 }
@@ -406,21 +406,21 @@
   text-align: center;
   margin-top: 2rem;
   padding: 1.5rem;
-  background: rgba(241, 132, 93, 0.08);
+  background: rgba(196, 139, 180, 0.08);
   border-radius: 16px;
-  border: 1px solid rgba(241, 132, 93, 0.2);
+  border: 1px solid rgba(196, 139, 180, 0.2);
 }
 
 .email-subscription-cta p {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(58, 36, 52, 0.8);
   margin: 0 0 1rem 0;
   font-size: 0.95rem;
 }
 
 .email-subscribe-btn {
-  background: rgba(241, 132, 93, 0.3);
-  color: white;
-  border: 1px solid rgba(241, 132, 93, 0.5);
+  background: rgba(196, 139, 180, 0.3);
+  color: var(--text);
+  border: 1px solid rgba(196, 139, 180, 0.5);
   border-radius: 10px;
   padding: 0.8rem 2rem;
   font-size: 1rem;
@@ -431,28 +431,28 @@
 }
 
 .email-subscribe-btn:hover {
-  background: rgba(241, 132, 93, 0.5);
-  border-color: rgb(241, 132, 93);
+  background: rgba(196, 139, 180, 0.5);
+  border-color: var(--accent);
   transform: translateY(-1px);
 }
 
 .alternative-cta {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(58, 36, 52, 0.1);
   text-align: center;
 }
 
 .alternative-cta p {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(58, 36, 52, 0.6);
   font-size: 0.9rem;
   margin: 0 0 1rem 0;
 }
 
 .email-digest-btn {
-  background: rgba(241, 132, 93, 0.15);
-  color: rgb(241, 132, 93);
-  border: 1px solid rgba(241, 132, 93, 0.4);
+  background: rgba(196, 139, 180, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(196, 139, 180, 0.4);
   border-radius: 10px;
   padding: 0.75rem 2rem;
   font-size: 0.95rem;
@@ -463,9 +463,9 @@
 }
 
 .email-digest-btn:hover {
-  background: rgba(241, 132, 93, 0.25);
-  border-color: rgb(241, 132, 93);
-  color: white;
+  background: rgba(196, 139, 180, 0.25);
+  border-color: var(--accent);
+  color: var(--text);
 }
 
 /* Responsive */

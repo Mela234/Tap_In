@@ -4,10 +4,9 @@ Sends emails every week on Friday
 """
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
-from app.models.raw_data import RawData
 from app.services.email_service import get_email_service
 from firebase_admin import firestore\
 
@@ -15,36 +14,10 @@ scheduler = BackgroundScheduler()
 
 
 def get_weekly_trends_data(db: Session):
-    """Get this week's trending data from the database"""
-    from app.api.routes.trends import format_raw_data_as_trend
-    
-    # Get data from the last 7 days
-    raw_data = db.query(RawData).order_by(
-        RawData.collected_at.desc()
-    ).limit(50).all()
-    
-    if not raw_data:
-        return {
-            "week_start": datetime.utcnow().strftime("%Y-%m-%d"),
-            "week_end": datetime.utcnow().strftime("%Y-%m-%d"),
-            "trends": []
-        }
-    
-    # Convert raw data to trend format
-    trends = []
-    trend_id = 1
-    
-    for item in raw_data[:20]:  # Return top 20
-        trend = format_raw_data_as_trend(item, trend_id)
-        if trend:
-            trends.append(trend)
-            trend_id += 1
-    
-    return {
-        "week_start": (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d"),
-        "week_end": datetime.utcnow().strftime("%Y-%m-%d"),
-        "trends": trends
-    }
+    """Get this week's top highlights from the database"""
+    from app.api.routes.trends import get_weekly_highlights
+
+    return get_weekly_highlights(db)
 
 
 def get_email_subscribers():

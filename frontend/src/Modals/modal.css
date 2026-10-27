@@ -61,7 +61,7 @@
 .primary-btn {
   margin-top: 1rem;
   padding: 0.7rem;
-  background: #008080;
+  background: var(--accent-strong);
   color: white;
   border: none;
   border-radius: 6px;
@@ -80,7 +80,7 @@
 }
 
 .modal-footer a {
-  color: #008080;
+  color: var(--accent-strong);
   text-decoration: none;
   font-weight: 600;
 }
@@ -97,7 +97,7 @@
 
 .about-highlight {
   font-weight: 600;
-  color: #008080;
+  color: var(--accent-strong);
   margin-top: 1.2rem;
   text-align: center;
 }

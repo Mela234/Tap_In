@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import trends, categories, health, admin, stripe
 from app.tasks.email_scheduler import start_email_scheduler
+from app.tasks.scheduler import start_news_scheduler
+from app.core.database import Base, engine
+from app import models  # noqa: F401  (registers every table on Base.metadata)
 import firebase_admin
 from firebase_admin import credentials
 
@@ -16,7 +19,7 @@ except Exception as e:
 
 app = FastAPI(
     title="TAPIN API",
-    description="Gen Z Trend Mining Platform",
+    description="Daily news highlights, six sides at a time",
     version="1.0.0"
 )
 
@@ -24,6 +27,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://tapinpointo.netlify.app"],
+    allow_origin_regex=r"http://localhost:\d+",  # local dev servers
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,6 +50,15 @@ async def startup_event():
     """Initialize background tasks on application startup"""
     print("\n🚀 Starting TAPIN application...")
     
+    # Create any missing tables (e.g. highlights on a fresh database)
+    Base.metadata.create_all(bind=engine)
+
+    # Start the daily news pipeline
+    try:
+        start_news_scheduler()
+    except Exception as e:
+        print(f"⚠️  Failed to initialize news scheduler: {e}")
+
     # Start email scheduler
     try:
         start_email_scheduler()

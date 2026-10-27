@@ -77,3 +77,5 @@ alembic/versions/*.pyc
 
 #firebase
 serviceAccountKey
+# Firebase Admin credentials (keep out of git)
+serviceAccountKey.json

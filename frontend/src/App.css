@@ -1,6 +1,20 @@
 /* App.css */
 @import url("https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap");
 
+:root {
+  /* Light theme with mauve accents */
+  --bg: #fbf6f9;
+  --bg-deep: #f3e7ef;
+  --surface: #ffffff;
+  --surface-2: #f6edf3;
+  --accent: #b5739f;
+  --accent-strong: #8f5480;
+  --text: #3a2434;
+  --text-muted: #85707e;
+
+  color-scheme: light;
+}
+
 html,
 body,
 #root {
@@ -8,11 +22,13 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: var(--bg);
 }
 
 .App {
-  background-color: #012b2b;
-  color: white;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "DM Sans", system-ui, sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -23,18 +39,20 @@ body,
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  background-color: #011d1d;
-  color: white;
+  background-color: transparent;
+  color: var(--text);
   position: relative;
+  z-index: 2;
 }
 
 .header-title {
-  font-family: "Patrick Hand", cursive;
-  font-size: 2.5rem;
-  letter-spacing: 0.2em;
-  background: linear-gradient(45deg, #f8f3f6, #f3ecf0, #e5e3e6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: "Fraunces", Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.9rem;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  color: var(--text);
   margin: 0;
   white-space: nowrap;
   cursor: pointer;
@@ -49,9 +67,9 @@ body,
   display: flex;
   gap: 2rem;
   align-items: center;
-  font-size: 1.1rem;
-  font-family: "Patrick Hand", sans-serif;
-  font-weight: bold;
+  font-size: 0.92rem;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-weight: 500;
 }
 
 .hamburger-btn {
@@ -67,8 +85,8 @@ body,
 
 .hamburger-btn span {
   width: 25px;
-  height: 3px;
-  background-color: white;
+  height: 2px;
+  background-color: var(--text);
   border-radius: 2px;
   transition: all 0.3s ease;
 }
@@ -76,7 +94,7 @@ body,
 .link-btn {
   background: none;
   border: none;
-  color: white;
+  color: var(--text-muted);
   font: inherit;
   cursor: pointer;
   padding: 0;
@@ -84,13 +102,12 @@ body,
 }
 
 .link-btn:hover {
-  text-decoration: underline;
-  color: #f3ecf0;
+  color: var(--text);
 }
 
 .user-email {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
 }
 
 .App-body {
@@ -102,9 +119,16 @@ body,
   padding: 0 1rem;
 }
 
+.App-home {
+  margin-top: 0;
+  padding: 0;
+  width: 100%;
+}
+
 .firstLine,
 .secondLine {
   display: block;
+  text-align: center;
   font-family: "Patrick Hand", cursive;
   text-transform: uppercase;
   font-size: 2.5rem;
@@ -115,10 +139,15 @@ body,
 }
 
 .secondLine {
-  background-color: rgb(241, 132, 93);
+  background-color: var(--accent);
+  color: var(--bg-deep);
+  padding: 0 0.5rem;
+  border-radius: 4px;
+  transform: rotate(-1deg);
 }
 
 .description {
+  color: var(--text-muted);
   font-size: 1.2rem;
   max-width: 800px;
   text-align: center;
@@ -147,14 +176,14 @@ body,
     height: 100vh;
     width: 70%;
     max-width: 300px;
-    background-color: #011d1d;
+    background-color: var(--surface);
     flex-direction: column;
     align-items: flex-start;
     padding: 5rem 2rem 2rem;
     gap: 1.5rem;
     transition: right 0.3s ease;
     z-index: 1000;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    box-shadow: -10px 0 40px rgba(110, 60, 95, 0.15);
   }
 
   .header-nav.mobile-open {

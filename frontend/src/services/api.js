@@ -18,6 +18,11 @@ export const getWeeklyTrends = async () => {
   return data;
 };
 
+export const getHexagonTrends = async () => {
+  const { data } = await api.get("/trends/hexagon");
+  return data;
+};
+
 export const getTrendById = async (id) => {
   const { data } = await api.get(`/trends/${id}`);
   return data;
